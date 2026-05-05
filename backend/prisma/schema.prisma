@@ -1,0 +1,216 @@
+// Prisma schema for NutriTrack
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  passwordHash String  @map("password_hash")
+  avatarUrl   String?  @map("avatar_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  // User stats
+  streakCount Int      @default(0) @map("streak_count")
+  totalScore  Int      @default(0) @map("total_score")
+  lastLogin   DateTime? @map("last_login")
+  
+  // Calorie goal (auto-calculated from TDEE or manually set)
+  calorieGoal Int      @default(2000) @map("calorie_goal")
+
+  // Physical profile for TDEE calculation
+  age           Int?
+  gender        String?   // 'male' | 'female' | 'other'
+  heightCm      Float?    @map("height_cm")
+  currentWeightKg Float?  @map("current_weight_kg")
+  targetWeightKg  Float?  @map("target_weight_kg")
+  activityLevel   String? @default("sedentary") @map("activity_level")
+  // 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active'
+  goalType      String?   @default("lose") @map("goal_type")
+  // 'lose' | 'maintain' | 'gain'
+  
+  // Relations
+  foodLogs      FoodLog[]
+  exerciseLogs  ExerciseLog[]
+  dailySummaries DailySummary[]
+  streaks       Streak[]
+  scores        Score[]
+  activityGraph ActivityGraph[]
+  weightLogs    WeightLog[]
+  
+  @@map("users")
+}
+
+model FoodLog {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  foodName  String   @map("food_name")
+  calories  Int
+  protein   Float
+  carbs     Float
+  fats      Float
+  timestamp DateTime @default(now())
+  details   String?  // Additional details about the food
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, timestamp])
+  @@map("food_logs")
+}
+
+model ExerciseLog {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  exerciseName  String   @map("exercise_name")
+  caloriesBurned Int     @map("calories_burned")
+  duration      Int      // Duration in minutes
+  timestamp     DateTime @default(now())
+  details       String?  // Additional details about the exercise
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, timestamp])
+  @@map("exercise_logs")
+}
+
+model DailySummary {
+  id              String   @id @default(cuid())
+  userId          String   @map("user_id")
+  date            DateTime @db.Date
+  caloriesConsumed Int     @default(0) @map("calories_consumed")
+  caloriesBurned  Int     @default(0) @map("calories_burned")
+  netCalories     Int     @map("net_calories")
+  protein         Float   @default(0)
+  carbs           Float   @default(0)
+  fats            Float   @default(0)
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("daily_summaries")
+}
+
+model Streak {
+  id            String    @id @default(cuid())
+  userId        String    @map("user_id")
+  startDate     DateTime  @map("start_date") @db.Date
+  endDate       DateTime? @map("end_date") @db.Date
+  currentStreak Int       @default(0) @map("current_streak")
+  longestStreak Int       @default(0) @map("longest_streak")
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId])
+  @@map("streaks")
+}
+
+model Score {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  points    Int
+  reason    String
+  timestamp DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, timestamp])
+  @@map("scores")
+}
+
+model ActivityGraph {
+  id     String   @id @default(cuid())
+  userId String   @map("user_id")
+  date   DateTime @db.Date
+  status String   // 'noData', 'under', 'onTrack', 'over'
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("activity_graph")
+}
+
+// ─── Better Auth tables ───────────────────────────────────────────────────────
+// These are separate from the existing "users" table used by the Express backend.
+// Better Auth manages its own user/session/account records here.
+
+model AuthUser {
+  id            String       @id
+  name          String
+  email         String       @unique
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  sessions      AuthSession[]
+  accounts      AuthAccount[]
+
+  @@map("auth_user")
+}
+
+model AuthSession {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("auth_session")
+}
+
+model AuthAccount {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  AuthUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("auth_account")
+}
+
+model AuthVerification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("auth_verification")
+}
+
+model WeightLog {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  weightKg  Float    @map("weight_kg")
+  date      DateTime @db.Date
+  note      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("weight_logs")
+}
+

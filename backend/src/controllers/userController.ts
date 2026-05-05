@@ -1,0 +1,203 @@
+import { Request, Response } from 'express';
+import { prisma } from '../config/database';
+import { AppError } from '../middleware/errorHandler';
+import { getUserStreak } from '../services/streakService';
+import {
+  calculateTDEE,
+  calculateCalorieGoalFromTDEE,
+} from '../utils/calculations';
+import { getToday } from '../utils/date';
+
+/**
+ * GET /user/profile
+ */
+export const getProfile = async (req: Request, res: Response) => {
+  const userId = req.userId!;
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      avatarUrl: true,
+      createdAt: true,
+      streakCount: true,
+      totalScore: true,
+      lastLogin: true,
+      calorieGoal: true,
+      age: true,
+      gender: true,
+      heightCm: true,
+      currentWeightKg: true,
+      targetWeightKg: true,
+      activityLevel: true,
+      goalType: true,
+    },
+  });
+
+  if (!user) throw new AppError('User not found', 404);
+
+  const streak = await getUserStreak(userId);
+
+  const recentScores = await prisma.score.findMany({
+    where: { userId },
+    orderBy: { timestamp: 'desc' },
+    take: 10,
+  });
+
+  // Latest weight log
+  const latestWeight = await prisma.weightLog.findFirst({
+    where: { userId },
+    orderBy: { date: 'desc' },
+    select: { weightKg: true, date: true },
+  });
+
+  res.json({
+    user: {
+      ...user,
+      streak: {
+        current: streak.currentStreak,
+        longest: streak.longestStreak,
+        startDate: streak.startDate,
+        endDate: streak.endDate,
+      },
+      recentScores,
+      latestWeight,
+    },
+  });
+};
+
+/**
+ * PUT /user/profile
+ * Accepts physical stats; auto-recalculates calorie goal via TDEE if enough data.
+ */
+export const updateProfile = async (req: Request, res: Response) => {
+  const userId = req.userId!;
+  const {
+    name, avatarUrl, calorieGoal,
+    age, gender, heightCm, currentWeightKg, targetWeightKg,
+    activityLevel, goalType,
+  } = req.body;
+
+  const updateData: Record<string, any> = {};
+  if (name             !== undefined) updateData.name             = name;
+  if (avatarUrl        !== undefined) updateData.avatarUrl        = avatarUrl;
+  if (age              !== undefined) updateData.age              = Number(age);
+  if (gender           !== undefined) updateData.gender           = gender;
+  if (heightCm         !== undefined) updateData.heightCm         = Number(heightCm);
+  if (currentWeightKg  !== undefined) updateData.currentWeightKg  = Number(currentWeightKg);
+  if (targetWeightKg   !== undefined) updateData.targetWeightKg   = Number(targetWeightKg);
+  if (activityLevel    !== undefined) updateData.activityLevel    = activityLevel;
+  if (goalType         !== undefined) updateData.goalType         = goalType;
+
+  // Fetch current user to fill in any missing fields for TDEE calc
+  const current = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { age: true, gender: true, heightCm: true, currentWeightKg: true, activityLevel: true, goalType: true },
+  });
+
+  const merged = { ...current, ...updateData };
+
+  // Auto-calculate calorie goal from TDEE if we have enough data
+  // (only override if caller didn't explicitly send calorieGoal)
+  if (calorieGoal !== undefined) {
+    updateData.calorieGoal = Number(calorieGoal);
+  } else if (merged.age && merged.gender && merged.heightCm && merged.currentWeightKg) {
+    const tdee = calculateTDEE({
+      age:           merged.age,
+      gender:        merged.gender,
+      heightCm:      merged.heightCm,
+      weightKg:      merged.currentWeightKg,
+      activityLevel: merged.activityLevel ?? 'sedentary',
+    });
+    if (tdee) {
+      updateData.calorieGoal = calculateCalorieGoalFromTDEE(tdee, merged.goalType ?? 'lose');
+    }
+  }
+
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: updateData,
+    select: {
+      id: true, name: true, email: true, avatarUrl: true,
+      calorieGoal: true, age: true, gender: true,
+      heightCm: true, currentWeightKg: true, targetWeightKg: true,
+      activityLevel: true, goalType: true,
+    },
+  });
+
+  // If currentWeightKg was updated, also log it as today's weight entry
+  if (currentWeightKg !== undefined) {
+    await prisma.weightLog.upsert({
+      where: { userId_date: { userId, date: getToday() } },
+      update: { weightKg: Number(currentWeightKg) },
+      create: { userId, weightKg: Number(currentWeightKg), date: getToday() },
+    });
+  }
+
+  res.json({ message: 'Profile updated', user });
+};
+
+/**
+ * GET /user/weight
+ * Returns weight log history (last 90 days).
+ */
+export const getWeightHistory = async (req: Request, res: Response) => {
+  const userId = req.userId!;
+
+  const logs = await prisma.weightLog.findMany({
+    where: {
+      userId,
+      date: { gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) },
+    },
+    orderBy: { date: 'asc' },
+    select: { date: true, weightKg: true, note: true },
+  });
+
+  res.json({ logs });
+};
+
+/**
+ * POST /user/weight
+ * Log today's weight.
+ */
+export const logWeight = async (req: Request, res: Response) => {
+  const userId = req.userId!;
+  const { weightKg, note, date } = req.body;
+
+  if (!weightKg || isNaN(Number(weightKg))) {
+    throw new AppError('weightKg is required', 400);
+  }
+
+  const logDate = date ? new Date(date) : getToday();
+
+  const entry = await prisma.weightLog.upsert({
+    where: { userId_date: { userId, date: logDate } },
+    update: { weightKg: Number(weightKg), note },
+    create: { userId, weightKg: Number(weightKg), date: logDate, note },
+  });
+
+  // Keep currentWeightKg on the user in sync with the latest log
+  await prisma.user.update({
+    where: { id: userId },
+    data: { currentWeightKg: Number(weightKg) },
+  });
+
+  res.json({ entry });
+};
+
+/**
+ * DELETE /user/weight/:date  (date = YYYY-MM-DD)
+ */
+export const deleteWeightLog = async (req: Request, res: Response) => {
+  const userId = req.userId!;
+  const { date } = req.params;
+  const logDate = new Date(date);
+
+  await prisma.weightLog.deleteMany({
+    where: { userId, date: logDate },
+  });
+
+  res.json({ message: 'Weight log deleted' });
+};
