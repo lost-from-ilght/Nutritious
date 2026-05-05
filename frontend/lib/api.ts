@@ -112,6 +112,14 @@ export const userApi = {
         streakCount: number;
         totalScore: number;
         calorieGoal: number;
+        heightCm?: number | null;
+        currentWeightKg?: number | null;
+        targetWeightKg?: number | null;
+        activityLevel?: string | null;
+        goalType?: string | null;
+        age?: number | null;
+        gender?: string | null;
+        latestWeight?: { weightKg: number; date: string } | null;
         streak: {
           current: number;
           longest: number;

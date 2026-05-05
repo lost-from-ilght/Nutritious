@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { MobileContainer } from '@/components/layout/MobileContainer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -17,7 +17,8 @@ function GoogleIcon() {
   );
 }
 
-export default function LoginPage() {
+// useSearchParams must be inside Suspense in Next.js App Router
+function LoginContent() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { loginWithGoogle, isAuthenticated, loading: authLoading } = useAuth();
@@ -33,9 +34,14 @@ export default function LoginPage() {
   }, [searchParams]);
 
   const handleLogin = async () => {
-    setError(null); setLoading(true);
-    try { await loginWithGoogle(); }
-    catch (e) { setError(e instanceof Error ? e.message : 'Sign-in failed.'); setLoading(false); }
+    setError(null);
+    setLoading(true);
+    try {
+      await loginWithGoogle();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Sign-in failed.');
+      setLoading(false);
+    }
   };
 
   if (authLoading) return (
@@ -48,10 +54,7 @@ export default function LoginPage() {
   return (
     <MobileContainer className="flex flex-col overflow-y-auto">
       <div className="flex-1 flex flex-col justify-between p-8 py-16">
-
-        {/* Hero */}
         <div className="space-y-6">
-          {/* Logo mark */}
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 clip-card flex items-center justify-center text-2xl glow-red"
                  style={{ background: 'var(--primary)' }}>
@@ -67,7 +70,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Tagline card */}
           <div className="clip-card p-5 relative overflow-hidden"
                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <div className="absolute top-0 right-0 w-32 h-32 stripe-accent opacity-40 pointer-events-none" />
@@ -82,7 +84,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Feature pills */}
           <div className="flex flex-wrap gap-2">
             {['🎯 TDEE Calculator', '📊 Weekly Stats', '🏆 Leaderboard', '⚖️ Weight Tracker', '🤖 AI Logging'].map(f => (
               <span key={f} className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 clip-btn"
@@ -93,7 +94,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* CTA */}
         <div className="space-y-4 mt-8">
           {error && (
             <div className="clip-card-sm p-3 text-sm font-bold"
@@ -101,22 +101,32 @@ export default function LoginPage() {
               {error}
             </div>
           )}
-
           <button
             onClick={handleLogin}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 py-4 font-black text-sm uppercase tracking-widest transition-all hover:opacity-90 active:scale-98 disabled:opacity-50 clip-card"
+            className="w-full flex items-center justify-center gap-3 py-4 font-black text-sm uppercase tracking-widest transition-all hover:opacity-90 disabled:opacity-50 clip-card"
             style={{ background: 'var(--foreground)', color: 'var(--bg-base)' }}
           >
             {loading ? <LoadingSpinner size="sm" /> : <GoogleIcon />}
             {loading ? 'Connecting...' : 'Continue with Google'}
           </button>
-
           <p className="text-center text-[10px] uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
-            By continuing you accept our Terms & Privacy Policy
+            By continuing you accept our Terms &amp; Privacy Policy
           </p>
         </div>
       </div>
     </MobileContainer>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <MobileContainer className="flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </MobileContainer>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
