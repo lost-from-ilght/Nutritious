@@ -4,8 +4,12 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../config/database';
 import { env } from '../config/env';
 import { AppError } from '../middleware/errorHandler';
-import { JWTPayload } from '../middleware/auth';
 import { getToday } from '../utils/date';
+
+interface JWTPayload {
+  userId: string;
+  email: string;
+}
 
 /**
  * Generate JWT token
@@ -13,7 +17,7 @@ import { getToday } from '../utils/date';
 const generateToken = (userId: string, email: string): string => {
   const payload: JWTPayload = { userId, email };
   return jwt.sign(payload, env.JWT_SECRET, {
-    expiresIn: env.JWT_EXPIRES_IN,
+    expiresIn: env.JWT_EXPIRES_IN as `${number}${'s'|'m'|'h'|'d'|'w'|'y'}`,
   });
 };
 

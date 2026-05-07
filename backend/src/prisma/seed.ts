@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/prisma';
 import bcrypt from 'bcryptjs';
 import { getToday, getDaysAgo, getDateString } from '../utils/date';
 

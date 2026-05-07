@@ -33,7 +33,7 @@ async function getBetterAuthSession(req: Request): Promise<{ id: string; email: 
 
     if (!response.ok) return null;
 
-    const data = await response.json();
+    const data = await response.json() as { user?: { id: string; email: string; name: string; image?: string | null } };
     return data?.user ?? null;
   } catch {
     return null;
