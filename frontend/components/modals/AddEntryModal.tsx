@@ -47,28 +47,26 @@ export function AddEntryModal({ isOpen, onClose, onSuccess }: AddEntryModalProps
 
     const examples = [
         "I ate a chicken salad with balsamic dressing",
-        "Had 2 slices of pepperoni pizza and a coke",
-        "Ran 5km in 25 minutes",
-        "Did 30 minutes of weightlifting at the gym"
+        "Ran 5km in 25 minutes"
     ];
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 p-4">
-            <div className="w-full max-w-[440px] bg-[#1A1A1A] rounded-[32px] p-6 pb-10 animate-in slide-in-from-bottom duration-300 shadow-2xl border border-white/5 mb-4">
-                <div className="flex justify-between items-center mb-6">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-200 p-4">
+            <div className="w-full max-w-[440px] clip-card p-6 pb-10 animate-in slide-in-from-bottom duration-300 shadow-2xl border border-[var(--primary)] mb-4" style={{ background: 'var(--bg-base)' }}>
+                <div className="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-xl text-primary">
+                        <div className="p-2 bg-[var(--primary)]/10 clip-card-sm text-[var(--primary)]">
                             <Sparkles size={20} />
                         </div>
-                        <h2 className="text-xl font-bold text-white tracking-tight">
-                            AI Entry Log
+                        <h2 className="text-2xl font-game uppercase text-white tracking-widest text-glow-red">
+                            AI ENTRY LOG
                         </h2>
                     </div>
                     <button
                         onClick={handleClose}
-                        className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors"
+                        className="p-2 bg-white/5 clip-card-sm hover:bg-[var(--primary)] hover:text-black transition-colors text-gray-400"
                     >
-                        <X size={20} className="text-gray-400" />
+                        <X size={20} />
                     </button>
                 </div>
 
@@ -80,12 +78,12 @@ export function AddEntryModal({ isOpen, onClose, onSuccess }: AddEntryModalProps
                     )}
 
                     <div className="relative group">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-[var(--primary)]/20 to-[var(--cyan)]/20 blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
                         <textarea
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder="Describe what you ate or how you exercised..."
-                            className="relative w-full h-40 bg-[#252525] rounded-2xl p-5 text-white placeholder:text-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all text-lg leading-relaxed"
+                            className="relative w-full h-40 resize-none text-lg leading-relaxed !bg-black/50"
                             autoFocus
                         />
                         <div className="absolute bottom-4 right-4 text-xs text-gray-500 font-medium">
@@ -104,7 +102,7 @@ export function AddEntryModal({ isOpen, onClose, onSuccess }: AddEntryModalProps
                                     key={i}
                                     type="button"
                                     onClick={() => setInput(example)}
-                                    className="text-[13px] bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white px-3 py-1.5 rounded-full transition-all border border-white/5"
+                                    className="text-[11px] font-bold uppercase tracking-wider bg-white/5 hover:bg-white/10 text-gray-400 hover:text-[var(--cyan)] px-3 py-1.5 clip-btn transition-all border border-white/5"
                                 >
                                     {example}
                                 </button>
@@ -115,7 +113,7 @@ export function AddEntryModal({ isOpen, onClose, onSuccess }: AddEntryModalProps
                     <button
                         type="submit"
                         disabled={loading || !input.trim()}
-                        className="w-full h-14 bg-primary text-black font-black text-lg rounded-2xl hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_20px_rgba(var(--primary-rgb),0.3)]"
+                        className="w-full h-14 bg-[var(--primary)] text-black font-game text-xl tracking-widest uppercase clip-btn hover:bg-[var(--primary)]/90 active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_20px_var(--primary-glow)]"
                     >
                         {loading ? (
                             <>

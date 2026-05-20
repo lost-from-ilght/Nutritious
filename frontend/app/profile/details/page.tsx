@@ -243,7 +243,7 @@ export default function PersonalDetailsPage() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="w-full bg-primary text-black font-bold p-4 rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/20 disabled:opacity-50"
+            className="w-full bg-primary text-black font-game text-xl tracking-wider p-4 clip-btn hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/20 disabled:opacity-50"
           >
             {saving ? (
               <LoadingSpinner size="sm" />

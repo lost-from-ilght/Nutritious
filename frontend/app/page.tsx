@@ -69,7 +69,7 @@ function DashboardContent() {
     }
   };
 
-  const userAvatar = user?.avatarUrl ||
+  const userAvatar = profileData?.agentAvatar || user?.avatarUrl ||
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'User'}`;
 
   if (loading) return (

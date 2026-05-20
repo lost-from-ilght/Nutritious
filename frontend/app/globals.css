@@ -72,6 +72,23 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ── Form Inputs ───────────────────────────────────────────────────────────── */
+input, select, textarea {
+  border-radius: 0 !important;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  background: var(--bg-card-2) !important;
+  border: 1px solid var(--border) !important;
+  transition: all 0.2s ease;
+  color: var(--foreground) !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none !important;
+  border-color: var(--primary) !important;
+  background: rgba(255, 70, 85, 0.05) !important;
+  box-shadow: inset 4px 0 0 var(--primary) !important;
+}
+
 /* ── Scrollbar ─────────────────────────────────────────────────────────────── */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

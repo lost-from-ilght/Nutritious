@@ -16,12 +16,12 @@ import { AddEntryModal } from '@/components/modals/AddEntryModal';
 
 function StatCard({ label, value, sub, positive }: { label: string; value: string; sub?: string; positive?: boolean }) {
   return (
-    <div className="bg-[#1A1A1A] rounded-2xl p-4 flex flex-col gap-1">
-      <div className="text-xs text-gray-500">{label}</div>
-      <div className={`text-2xl font-bold ${positive === undefined ? 'text-white' : positive ? 'text-green-400' : 'text-red-400'}`}>
+    <div className="clip-card-sm p-4 flex flex-col gap-1 border border-white/5" style={{ background: 'var(--bg-card)' }}>
+      <div className="text-[10px] font-black uppercase tracking-wider text-gray-500">{label}</div>
+      <div className={`font-game tracking-wide text-2xl ${positive === undefined ? 'text-white' : positive ? 'text-[var(--cyan)]' : 'text-[var(--primary)]'}`}>
         {value}
       </div>
-      {sub && <div className="text-xs text-gray-500">{sub}</div>}
+      {sub && <div className="text-[10px] uppercase text-gray-500">{sub}</div>}
     </div>
   );
 }
@@ -31,13 +31,13 @@ function DailyBar({ day }: { day: { date: string; calories: number; goal: number
   const label = new Date(day.date).toLocaleDateString('en', { weekday: 'short' });
   return (
     <div className="flex flex-col items-center gap-1 flex-1">
-      <div className="w-full h-24 bg-white/5 rounded-lg relative overflow-hidden flex items-end">
+      <div className="w-full h-24 bg-white/5 relative overflow-hidden flex items-end clip-card-sm border border-white/5">
         <div
-          className={`w-full rounded-lg transition-all duration-700 ${day.inDeficit ? 'bg-green-500' : day.calories === 0 ? 'bg-white/5' : 'bg-red-400'}`}
+          className={`w-full transition-all duration-700 ${day.inDeficit ? 'bg-[var(--cyan)]' : day.calories === 0 ? 'bg-white/5' : 'bg-[var(--primary)]'}`}
           style={{ height: `${Math.max(4, pct)}%` }}
         />
       </div>
-      <span className="text-[10px] text-gray-500">{label}</span>
+      <span className="text-[10px] uppercase font-bold text-gray-500">{label}</span>
     </div>
   );
 }
@@ -50,11 +50,11 @@ function WeightHistoryList({ logs, onDelete }: {
   const shown = expanded ? logs : logs.slice(-7);
 
   return (
-    <div className="bg-[#1A1A1A] rounded-3xl p-5 space-y-3">
+    <div className="clip-card p-5 space-y-3 border border-white/5" style={{ background: 'var(--bg-card)' }}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Scale size={16} className="text-primary" />
-          <h3 className="text-sm font-semibold text-white">Weight History</h3>
+          <Scale size={16} className="text-[var(--primary)]" />
+          <h3 className="text-sm font-game tracking-widest text-white uppercase">Weight History</h3>
         </div>
         {logs.length > 7 && (
           <button onClick={() => setExpanded(!expanded)} className="text-xs text-gray-500 flex items-center gap-1">
@@ -78,7 +78,7 @@ function WeightHistoryList({ logs, onDelete }: {
             </div>
             <button
               onClick={() => onDelete(log.date)}
-              className="p-2 text-gray-600 hover:text-red-400 transition-colors"
+              className="p-2 text-gray-600 hover:text-[var(--primary)] transition-colors"
               aria-label="Delete"
             >
               <Trash2 size={15} />
@@ -143,21 +143,21 @@ function ProgressContent() {
       <div className="flex-1 overflow-y-auto no-scrollbar pb-24">
         {/* Header */}
         <div className="p-6 pt-8 flex items-center gap-3">
-          <div className="p-2.5 bg-primary/10 rounded-2xl">
-            <BarChart2 size={22} className="text-primary" />
+          <div className="p-2.5 bg-primary/10 clip-card-sm">
+            <BarChart2 size={22} className="text-[var(--primary)]" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Progress</h1>
+          <h1 className="text-3xl font-game tracking-widest uppercase text-white">Progress</h1>
         </div>
 
         {/* Tab switcher */}
         <div className="px-6 mb-6">
-          <div className="flex bg-[#1A1A1A] rounded-2xl p-1">
+          <div className="flex border border-white/5 clip-card-sm p-1" style={{ background: 'var(--bg-card)' }}>
             {(['week', 'month'] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  tab === t ? 'bg-primary text-black' : 'text-gray-400'
+                className={`flex-1 py-2 text-sm font-game tracking-widest uppercase transition-all ${
+                  tab === t ? 'bg-[var(--primary)] text-black clip-btn' : 'text-gray-400'
                 }`}
               >
                 {t === 'week' ? 'This Week' : 'This Month'}
@@ -197,8 +197,8 @@ function ProgressContent() {
 
               {/* vs last week */}
               {pw && pw.daysWithData > 0 && (
-                <div className="bg-[#1A1A1A] rounded-2xl p-4 space-y-2">
-                  <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider">vs Last Week</div>
+                <div className="clip-card p-4 space-y-2 border border-white/5" style={{ background: 'var(--bg-card)' }}>
+                  <div className="text-[10px] text-[var(--cyan)] font-black uppercase tracking-[0.2em]">vs Last Week</div>
                   {[
                     { label: 'Avg calories', curr: tw.avgCalories, prev: pw.avgCalories, lowerBetter: true },
                     { label: 'Days in deficit', curr: tw.daysInDeficit, prev: pw.daysInDeficit, lowerBetter: false },
@@ -212,7 +212,7 @@ function ProgressContent() {
                         <div className="flex items-center gap-1.5">
                           <span className="text-white font-medium">{curr}</span>
                           {diff !== 0 && (
-                            <span className={`flex items-center text-xs ${good ? 'text-green-400' : 'text-red-400'}`}>
+                            <span className={`flex items-center text-xs ${good ? 'text-[var(--cyan)]' : 'text-[var(--primary)]'}`}>
                               {diff > 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                               {Math.abs(diff)}
                             </span>
@@ -226,12 +226,12 @@ function ProgressContent() {
 
               {/* Daily bar chart */}
               {weekly.dailyBreakdown?.length > 0 && (
-                <div className="bg-[#1A1A1A] rounded-3xl p-5 space-y-3">
+                <div className="clip-card p-5 space-y-3 border border-white/5" style={{ background: 'var(--bg-card)' }}>
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-white">Daily Calories</h3>
-                    <div className="flex gap-3 text-xs text-gray-500">
-                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-green-500 inline-block" />In goal</span>
-                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-red-400 inline-block" />Over</span>
+                    <h3 className="text-sm font-game tracking-widest uppercase text-white">Daily Calories</h3>
+                    <div className="flex gap-3 text-[10px] uppercase font-bold text-gray-500">
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 bg-[var(--cyan)] inline-block clip-card-sm" />In goal</span>
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 bg-[var(--primary)] inline-block clip-card-sm" />Over</span>
                     </div>
                   </div>
                   <div className="flex gap-1.5 items-end h-28">
@@ -247,22 +247,22 @@ function ProgressContent() {
           {tab === 'month' && monthly && (
             <>
               {/* 4-week bars */}
-              <div className="bg-[#1A1A1A] rounded-3xl p-5 space-y-4">
-                <h3 className="text-sm font-semibold text-white">Weekly Averages</h3>
+              <div className="clip-card p-5 space-y-4 border border-white/5" style={{ background: 'var(--bg-card)' }}>
+                <h3 className="text-sm font-game tracking-widest uppercase text-white">Weekly Averages</h3>
                 {monthly.weeks.map((w: any) => {
                   const pct = monthly.calorieGoal > 0 ? Math.min(100, (w.avgCalories / monthly.calorieGoal) * 100) : 0;
                   const good = w.avgCalories > 0 && w.avgCalories <= monthly.calorieGoal;
                   return (
                     <div key={w.label} className="space-y-1">
-                      <div className="flex justify-between text-xs text-gray-400">
+                      <div className="flex justify-between text-[10px] font-bold uppercase text-gray-400">
                         <span>{w.label}</span>
-                        <span className={good ? 'text-green-400' : w.avgCalories === 0 ? 'text-gray-600' : 'text-red-400'}>
+                        <span className={good ? 'text-[var(--cyan)]' : w.avgCalories === 0 ? 'text-gray-600' : 'text-[var(--primary)]'}>
                           {w.avgCalories > 0 ? `${w.avgCalories.toLocaleString()} kcal avg` : 'No data'}
                         </span>
                       </div>
-                      <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-2 bg-white/5 clip-card-sm overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all duration-700 ${good ? 'bg-green-500' : w.avgCalories === 0 ? 'bg-white/5' : 'bg-red-400'}`}
+                          className={`h-full transition-all duration-700 ${good ? 'bg-[var(--cyan)]' : w.avgCalories === 0 ? 'bg-white/5' : 'bg-[var(--primary)]'}`}
                           style={{ width: `${Math.max(2, pct)}%` }}
                         />
                       </div>
@@ -274,14 +274,14 @@ function ProgressContent() {
 
               {/* Weight trend for month */}
               {monthly.weightLogs?.length >= 2 && (
-                <div className="bg-[#1A1A1A] rounded-3xl p-5 space-y-3">
-                  <h3 className="text-sm font-semibold text-white">Weight Trend (30 days)</h3>
+                <div className="clip-card p-5 space-y-3 border border-white/5" style={{ background: 'var(--bg-card)' }}>
+                  <h3 className="text-sm font-game tracking-widest uppercase text-white">Weight Trend (30 days)</h3>
                   <MonthlyWeightChart logs={monthly.weightLogs} />
-                  <div className="flex justify-between text-xs text-gray-500">
+                  <div className="flex justify-between text-xs font-bold font-game tracking-wider text-gray-500">
                     <span>{monthly.weightLogs[0].weightKg.toFixed(1)} kg</span>
                     <span className={
                       monthly.weightLogs[monthly.weightLogs.length - 1].weightKg < monthly.weightLogs[0].weightKg
-                        ? 'text-green-400' : 'text-red-400'
+                        ? 'text-[var(--cyan)]' : 'text-[var(--primary)]'
                     }>
                       {monthly.weightLogs[monthly.weightLogs.length - 1].weightKg.toFixed(1)} kg
                     </span>
@@ -317,10 +317,10 @@ function MonthlyWeightChart({ logs }: { logs: Array<{ date: string; weightKg: nu
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-16">
-      <polyline points={points.join(' ')} fill="none" stroke="#a3e635" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points={points.join(' ')} fill="none" stroke="var(--cyan)" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter" />
       {(() => {
         const [x, y] = points[points.length - 1].split(',').map(Number);
-        return <circle cx={x} cy={y} r={4} fill="#a3e635" />;
+        return <rect x={x-3} y={y-3} width={6} height={6} fill="var(--cyan)" />;
       })()}
     </svg>
   );

@@ -1,8 +1,6 @@
-import { PrismaClient } from '../generated/prisma';
+import { prisma } from '../config/database';
 import bcrypt from 'bcryptjs';
 import { getToday, getDaysAgo, getDateString } from '../utils/date';
-
-const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Seeding database...');
