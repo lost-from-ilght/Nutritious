@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (session?.session?.token) {
       setToken(session.session.token);
-    } else if (!isPending) {
+    } else if (!isPending && !session?.user) {
       removeToken();
     }
   }, [session, isPending]);
