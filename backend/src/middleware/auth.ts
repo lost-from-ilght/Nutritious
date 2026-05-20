@@ -20,14 +20,20 @@ async function getBetterAuthSession(req: Request): Promise<{ id: string; email: 
   try {
     // Forward all cookies so better-auth can read its session cookie
     const cookieHeader = req.headers.cookie || '';
+    let finalCookie = cookieHeader;
+    const sessionToken = req.headers['x-session-token'];
+    
+    if (sessionToken) {
+      // better-auth natively expects the token in the 'better-auth.session_token' cookie
+      // In production (HTTPS) it checks '__Secure-better-auth.session_token' as well,
+      // but passing both ensures it works in all environments.
+      const extraCookies = `better-auth.session_token=${sessionToken}; __Secure-better-auth.session_token=${sessionToken}`;
+      finalCookie = finalCookie ? `${finalCookie}; ${extraCookies}` : extraCookies;
+    }
 
     const response = await fetch(`${BETTER_AUTH_URL}/api/auth/get-session`, {
       headers: {
-        cookie: cookieHeader,
-        // better-auth also accepts the session token via Authorization header
-        ...(req.headers['x-session-token']
-          ? { authorization: `Bearer ${req.headers['x-session-token']}` }
-          : {}),
+        cookie: finalCookie,
       },
     });
 

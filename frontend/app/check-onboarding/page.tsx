@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { userApi } from '@/lib/api';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { MobileContainer } from '@/components/layout/MobileContainer';
+import { useAuth } from '@/contexts/AuthContext';
 
 /**
  * Intermediate page after Google OAuth callback.
@@ -13,12 +14,21 @@ import { MobileContainer } from '@/components/layout/MobileContainer';
  */
 export default function CheckOnboardingPage() {
   const router = useRouter();
+  const { loading, isAuthenticated } = useAuth();
 
   useEffect(() => {
+    // Wait until auth is fully loaded and token is synced to localStorage
+    if (loading) return;
+    
+    // If somehow not authenticated, bounce them back to login
+    if (!isAuthenticated) {
+      router.replace('/login');
+      return;
+    }
+
     userApi.getProfile()
       .then((res) => {
         const u = res.user;
-        // If they haven't set their height yet, they haven't done onboarding
         if (!u.heightCm) {
           router.replace('/onboarding');
         } else {
@@ -26,10 +36,9 @@ export default function CheckOnboardingPage() {
         }
       })
       .catch(() => {
-        // If profile fetch fails, just go to dashboard
         router.replace('/');
       });
-  }, [router]);
+  }, [loading, isAuthenticated, router]);
 
   return (
     <MobileContainer className="flex items-center justify-center">
