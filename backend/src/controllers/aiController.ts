@@ -3,6 +3,7 @@ import { prisma } from '../config/database';
 import { processAIEntry } from '../services/aiService';
 import { updateDailySummary } from '../services/nutritionService';
 import { updateStreak } from '../services/streakService';
+import { awardRR } from '../services/rrService';
 import { AppError } from '../middleware/errorHandler';
 
 /**
@@ -62,6 +63,12 @@ export const processEntry = async (req: Request, res: Response) => {
       throw new Error('Unsupported entry type from AI');
     }
 
+    let rrResult = null;
+    if (type === 'exercise' && savedEntry.duration) {
+      const rrToAward = Math.max(1, Math.ceil(savedEntry.duration / 2));
+      rrResult = await awardRR(userId, rrToAward);
+    }
+
     // 4. Post-save operations (updates summaries, streaks)
     await updateDailySummary(userId);
     await updateStreak(userId);
@@ -70,6 +77,7 @@ export const processEntry = async (req: Request, res: Response) => {
       message: `${type.charAt(0).toUpperCase() + type.slice(1)} logged successfully via AI`,
       type,
       data: savedEntry,
+      rrResult,
     });
   } catch (error) {
     console.error('AI Processing Error:', error);

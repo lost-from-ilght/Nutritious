@@ -265,7 +265,7 @@ export const progressApi = {
 // AI API
 export const aiApi = {
   processEntry: async (text: string) => {
-    return apiRequest<{ message: string; data?: any }>('/api/ai/process', {
+    return apiRequest<{ message: string; data?: any; rrResult?: any }>('/api/ai/process', {
       method: 'POST',
       body: JSON.stringify({ text }),
     });

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Send, Sparkles, Lightbulb } from 'lucide-react';
 import { aiApi, userApi } from '@/lib/api';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { RankUpOverlay } from '@/components/ui/RankUpOverlay';
 import Link from 'next/link';
 
 interface AddEntryModalProps {
@@ -17,6 +18,7 @@ export function AddEntryModal({ isOpen, onClose, onSuccess }: AddEntryModalProps
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [hasGroqKey, setHasGroqKey] = useState<boolean | null>(null);
+    const [rankUpData, setRankUpData] = useState<{ rank: string; tier: number } | null>(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -29,6 +31,7 @@ export function AddEntryModal({ isOpen, onClose, onSuccess }: AddEntryModalProps
     const handleClose = () => {
         setInput('');
         setError(null);
+        setRankUpData(null);
         onClose();
     };
 
@@ -43,9 +46,14 @@ export function AddEntryModal({ isOpen, onClose, onSuccess }: AddEntryModalProps
         setError(null);
 
         try {
-            await aiApi.processEntry(input.trim());
+            const res = await aiApi.processEntry(input.trim());
             if (onSuccess) onSuccess();
-            handleClose();
+
+            if (res.rrResult?.rankUp) {
+                setRankUpData({ rank: res.rrResult.newRank, tier: res.rrResult.newTier });
+            } else {
+                handleClose();
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to process entry. Please try again.');
         } finally {
@@ -150,6 +158,14 @@ export function AddEntryModal({ isOpen, onClose, onSuccess }: AddEntryModalProps
                     )}
                 </form>
             </div>
+
+            {rankUpData && (
+                <RankUpOverlay 
+                    rank={rankUpData.rank} 
+                    tier={rankUpData.tier} 
+                    onClose={handleClose} 
+                />
+            )}
         </div>
     );
 }
