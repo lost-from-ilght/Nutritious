@@ -24,6 +24,7 @@ export const createApp = (): Express => {
   app.use(cors({
     origin: env.CORS_ORIGIN,
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-session-token'],
   }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));

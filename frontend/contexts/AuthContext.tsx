@@ -1,9 +1,10 @@
 'use client';
 
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useEffect } from 'react';
 import { useSession, signOut } from '@/lib/auth-client';
 import { authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
+import { setToken, removeToken } from '@/lib/api';
 
 interface User {
   id: string;
@@ -26,6 +27,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { data: session, isPending } = useSession();
   const router = useRouter();
+
+  useEffect(() => {
+    if (session?.session?.token) {
+      setToken(session.session.token);
+    } else if (!isPending) {
+      removeToken();
+    }
+  }, [session, isPending]);
 
   const loginWithGoogle = async () => {
     await authClient.signIn.social({

@@ -25,8 +25,10 @@ async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
+  const token = getToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    ...(token ? { 'x-session-token': token } : {}),
     ...(options.headers as Record<string, string> || {}),
   };
 

@@ -24,9 +24,9 @@ async function getBetterAuthSession(req: Request): Promise<{ id: string; email: 
     const response = await fetch(`${BETTER_AUTH_URL}/api/auth/get-session`, {
       headers: {
         cookie: cookieHeader,
-        // better-auth also accepts the session token via header
+        // better-auth also accepts the session token via Authorization header
         ...(req.headers['x-session-token']
-          ? { 'x-session-token': req.headers['x-session-token'] as string }
+          ? { authorization: `Bearer ${req.headers['x-session-token']}` }
           : {}),
       },
     });
