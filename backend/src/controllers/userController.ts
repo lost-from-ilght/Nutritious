@@ -23,7 +23,11 @@ export const getProfile = async (req: Request, res: Response) => {
       avatarUrl: true,
       createdAt: true,
       streakCount: true,
-      totalScore: true,
+      totalRR: true,
+      currentRR: true,
+      rank: true,
+      tier: true,
+      agentAvatar: true,
       lastLogin: true,
       calorieGoal: true,
       age: true,
@@ -40,11 +44,7 @@ export const getProfile = async (req: Request, res: Response) => {
 
   const streak = await getUserStreak(userId);
 
-  const recentScores = await prisma.score.findMany({
-    where: { userId },
-    orderBy: { timestamp: 'desc' },
-    take: 10,
-  });
+
 
   // Latest weight log
   const latestWeight = await prisma.weightLog.findFirst({
@@ -62,7 +62,7 @@ export const getProfile = async (req: Request, res: Response) => {
         startDate: streak.startDate,
         endDate: streak.endDate,
       },
-      recentScores,
+
       latestWeight,
     },
   });
@@ -75,7 +75,7 @@ export const getProfile = async (req: Request, res: Response) => {
 export const updateProfile = async (req: Request, res: Response) => {
   const userId = req.userId!;
   const {
-    name, avatarUrl, calorieGoal,
+    name, avatarUrl, agentAvatar, calorieGoal,
     age, gender, heightCm, currentWeightKg, targetWeightKg,
     activityLevel, goalType,
   } = req.body;
@@ -83,6 +83,7 @@ export const updateProfile = async (req: Request, res: Response) => {
   const updateData: Record<string, any> = {};
   if (name             !== undefined) updateData.name             = name;
   if (avatarUrl        !== undefined) updateData.avatarUrl        = avatarUrl;
+  if (agentAvatar      !== undefined) updateData.agentAvatar      = agentAvatar;
   if (age              !== undefined) updateData.age              = Number(age);
   if (gender           !== undefined) updateData.gender           = gender;
   if (heightCm         !== undefined) updateData.heightCm         = Number(heightCm);

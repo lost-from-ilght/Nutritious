@@ -9,7 +9,7 @@ import userRoutes from './routes/userRoutes';
 import foodRoutes from './routes/foodRoutes';
 import exerciseRoutes from './routes/exerciseRoutes';
 import dashboardRoutes from './routes/dashboardRoutes';
-import scoreRoutes from './routes/scoreRoutes';
+
 import streakRoutes from './routes/streakRoutes';
 import aiRoutes from './routes/aiRoutes';
 import progressRoutes from './routes/progressRoutes';
@@ -40,7 +40,7 @@ export const createApp = (): Express => {
   app.use('/api/food', foodRoutes);
   app.use('/api/exercise', exerciseRoutes);
   app.use('/api/dashboard', dashboardRoutes);
-  app.use('/api/scores', scoreRoutes);
+
   app.use('/api/streaks', streakRoutes);
   app.use('/api/ai', aiRoutes);
   app.use('/api/progress', progressRoutes);

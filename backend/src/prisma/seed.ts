@@ -19,7 +19,10 @@ async function main() {
       passwordHash,
       calorieGoal: 2000,
       streakCount: 5,
-      totalScore: 250,
+      totalRR: 250,
+      currentRR: 50,
+      rank: 'SILVER',
+      tier: 2,
     },
   });
 
@@ -146,28 +149,7 @@ async function main() {
 
   console.log('✅ Created daily summaries and activity graph');
 
-  // Create some scores
-  const scores = [
-    { points: 10, reason: 'Daily log entry' },
-    { points: 10, reason: 'Daily log entry' },
-    { points: 50, reason: 'Hit daily calorie goal' },
-    { points: 30, reason: '3 day streak' },
-    { points: 10, reason: 'Daily log entry' },
-  ];
 
-  for (let i = 0; i < 5; i++) {
-    const date = getDaysAgo(4 - i);
-    await prisma.score.create({
-      data: {
-        userId: user.id,
-        points: scores[i].points,
-        reason: scores[i].reason,
-        timestamp: new Date(date.getTime() + 18 * 60 * 60 * 1000), // 6 PM
-      },
-    });
-  }
-
-  console.log('✅ Created scores');
 
   console.log('\n🎉 Seeding completed!');
   console.log('\n📝 Test credentials:');

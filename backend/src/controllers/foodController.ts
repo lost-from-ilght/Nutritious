@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/database';
 import { AppError } from '../middleware/errorHandler';
-import { updateDailySummary, awardDailyLogScore } from '../services/nutritionService';
+import { updateDailySummary } from '../services/nutritionService';
 import { updateStreak } from '../services/streakService';
 
 /**
@@ -28,8 +28,7 @@ export const logFood = async (req: Request, res: Response) => {
   // Update daily summary
   await updateDailySummary(userId);
   
-  // Award daily log score
-  await awardDailyLogScore(userId);
+
   
   // Update streak
   await updateStreak(userId);

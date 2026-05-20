@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/database';
 import { AppError } from '../middleware/errorHandler';
-import { updateDailySummary, awardDailyLogScore } from '../services/nutritionService';
+import { updateDailySummary } from '../services/nutritionService';
+import { awardRR } from '../services/rrService';
 import { updateStreak } from '../services/streakService';
 
 /**
@@ -26,8 +27,9 @@ export const logExercise = async (req: Request, res: Response) => {
   // Update daily summary
   await updateDailySummary(userId);
   
-  // Award daily log score
-  await awardDailyLogScore(userId);
+  // Award RR based on duration (15 RR per 30 minutes => 0.5 RR per min)
+  const rrToAward = Math.max(1, Math.ceil(duration / 2));
+  const rrResult = await awardRR(userId, rrToAward);
   
   // Update streak
   await updateStreak(userId);
@@ -35,6 +37,7 @@ export const logExercise = async (req: Request, res: Response) => {
   res.status(201).json({
     message: 'Exercise logged successfully',
     exerciseLog,
+    rrResult
   });
 };
 

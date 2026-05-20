@@ -32,18 +32,23 @@ function ProfileContent() {
   );
 
   const displayUser = profileData || user;
-  const avatarUrl = displayUser?.avatarUrl ||
+  const avatarUrl = profileData?.agentAvatar || displayUser?.avatarUrl ||
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(displayUser?.name || 'User')}`;
   const streak = profileData?.streak?.current ?? 0;
-  const score  = profileData?.totalScore ?? 0;
+  
+  const rank = profileData?.rank || 'UNRANKED';
+  const tier = profileData?.tier || 1;
+  const currentRR = profileData?.currentRR || 0;
+  const totalRR = profileData?.totalRR || 0;
 
-  // Rank based on score
-  const rank = score >= 5000 ? 'RADIANT' : score >= 2000 ? 'DIAMOND' : score >= 1000 ? 'PLATINUM'
-             : score >= 500  ? 'GOLD'    : score >= 200  ? 'SILVER'  : 'IRON';
-  const rankColor: Record<string, string> = {
-    RADIANT: 'var(--gold)', DIAMOND: 'var(--cyan)', PLATINUM: '#a8d8ea',
-    GOLD: 'var(--gold)', SILVER: '#c0c0c0', IRON: 'var(--muted)',
+  const getRankImage = (r: string, t: number) => {
+    if (!r || r === 'UNRANKED') return '/ranks/Iron_1_Rank.png';
+    if (r === 'RADIANT') return '/ranks/Radiant_Rank.png';
+    const formattedRank = r.charAt(0) + r.slice(1).toLowerCase();
+    return `/ranks/${formattedRank}_${t}_Rank.png`;
   };
+  
+  const rankImageUrl = getRankImage(rank, tier);
 
   return (
     <MobileContainer>
@@ -78,12 +83,11 @@ function ProfileContent() {
             {/* Avatar with rank border */}
             <div className="relative flex-shrink-0">
               <div className="w-20 h-20 overflow-hidden"
-                   style={{ clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))', border: `2px solid ${rankColor[rank]}` }}>
+                   style={{ clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))', border: `2px solid var(--primary)` }}>
                 <img src={avatarUrl} alt="Agent" className="w-full h-full object-cover" />
               </div>
-              <div className="absolute -bottom-1 -right-1 px-1.5 py-0.5 text-[8px] font-black uppercase"
-                   style={{ background: rankColor[rank], color: '#000', clipPath: 'polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 0 100%)' }}>
-                {rank}
+              <div className="absolute -bottom-2 -right-2 w-10 h-10 drop-shadow-md">
+                <img src={rankImageUrl} alt={rank} className="w-full h-full object-contain" />
               </div>
             </div>
 
@@ -95,7 +99,7 @@ function ProfileContent() {
               <div className="flex items-center gap-2 mt-2">
                 <span className="text-[10px] font-black uppercase tracking-wider px-2 py-1 clip-btn"
                       style={{ background: 'rgba(255,70,85,0.1)', color: 'var(--primary)' }}>
-                  {score.toLocaleString()} XP
+                  {rank === 'RADIANT' ? `${currentRR} RR` : `${currentRR} / 100 RR`}
                 </span>
               </div>
             </div>
@@ -106,8 +110,8 @@ function ProfileContent() {
         <div className="grid grid-cols-2 gap-3 mx-5 mt-4">
           {[
             { label: 'Day Streak', value: `${streak}🔥`, color: 'var(--gold)' },
-            { label: 'Total XP',   value: score.toLocaleString(), color: 'var(--primary)' },
-            { label: 'Rank',       value: rank, color: rankColor[rank] },
+            { label: 'Total RR',   value: totalRR.toLocaleString(), color: 'var(--primary)' },
+            { label: 'Rank',       value: rank === 'RADIANT' ? rank : `${rank} ${tier}`, color: 'var(--primary)' },
             { label: 'Goal',       value: profileData?.goalType?.toUpperCase() || '—', color: 'var(--cyan)' },
           ].map(({ label, value, color }) => (
             <div key={label} className="clip-card-sm p-4 text-center"
@@ -122,6 +126,16 @@ function ProfileContent() {
 
         {/* Menu items */}
         <div className="mx-5 mt-4 space-y-2">
+          <Link href="/profile/agent">
+            <div className="flex items-center justify-between p-4 clip-card-sm transition-colors cursor-pointer group"
+                 style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+              <span className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--foreground)' }}>
+                👤 Select Agent
+              </span>
+              <ChevronRight size={16} style={{ color: 'var(--muted)' }} />
+            </div>
+          </Link>
+          
           <Link href="/profile/details">
             <div className="flex items-center justify-between p-4 clip-card-sm transition-colors cursor-pointer group"
                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>

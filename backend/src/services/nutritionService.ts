@@ -1,7 +1,6 @@
 import { prisma } from '../config/database';
 import { getToday, getDateString, getStartOfDay, getEndOfDay } from '../utils/date';
 import { calculateNetCalories, getActivityStatus } from '../utils/calculations';
-import { ScoreReason, calculateScore, getStreakMilestoneScore } from '../utils/scoring';
 
 /**
  * Service for nutrition-related calculations and updates
@@ -100,67 +99,8 @@ export const updateDailySummary = async (userId: string, date: Date = getToday()
     },
   });
   
-  // Check if goal was hit and award score
-  if (netCalories >= calorieGoal * 0.95 && netCalories <= calorieGoal * 1.05) {
-    // Goal hit (within 5% tolerance)
-    await awardScore(userId, ScoreReason.GOAL_HIT);
-  }
+  // Goal hit logic removed (no more scores from food)
   
   return summary;
-};
-
-/**
- * Award score to user
- */
-export const awardScore = async (userId: string, reason: ScoreReason) => {
-  const points = calculateScore(reason);
-  
-  // Check if score was already awarded today for this reason
-  const today = getToday();
-  const startOfDay = getStartOfDay(today);
-  const endOfDay = getEndOfDay(today);
-  
-  const existingScore = await prisma.score.findFirst({
-    where: {
-      userId,
-      reason,
-      timestamp: {
-        gte: startOfDay,
-        lte: endOfDay,
-      },
-    },
-  });
-  
-  if (existingScore) {
-    return existingScore; // Already awarded today
-  }
-  
-  // Create score entry
-  const score = await prisma.score.create({
-    data: {
-      userId,
-      points,
-      reason,
-    },
-  });
-  
-  // Update user's total score
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      totalScore: {
-        increment: points,
-      },
-    },
-  });
-  
-  return score;
-};
-
-/**
- * Award daily log score
- */
-export const awardDailyLogScore = async (userId: string) => {
-  return awardScore(userId, ScoreReason.DAILY_LOG);
 };
 

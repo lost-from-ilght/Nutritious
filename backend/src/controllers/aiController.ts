@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/database';
 import { processAIEntry } from '../services/aiService';
-import { updateDailySummary, awardDailyLogScore } from '../services/nutritionService';
+import { updateDailySummary } from '../services/nutritionService';
 import { updateStreak } from '../services/streakService';
 import { AppError } from '../middleware/errorHandler';
 
@@ -52,9 +52,8 @@ export const processEntry = async (req: Request, res: Response) => {
       throw new Error('Unsupported entry type from AI');
     }
 
-    // 4. Post-save operations (updates summaries, streaks, scores)
+    // 4. Post-save operations (updates summaries, streaks)
     await updateDailySummary(userId);
-    await awardDailyLogScore(userId);
     await updateStreak(userId);
 
     res.status(200).json({

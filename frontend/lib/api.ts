@@ -112,7 +112,11 @@ export const userApi = {
         email: string;
         avatarUrl: string | null;
         streakCount: number;
-        totalScore: number;
+        totalRR: number;
+        currentRR: number;
+        rank: string;
+        tier: number;
+        agentAvatar?: string | null;
         calorieGoal: number;
         heightCm?: number | null;
         currentWeightKg?: number | null;
@@ -128,12 +132,6 @@ export const userApi = {
           startDate: string | null;
           endDate: string | null;
         };
-        recentScores: Array<{
-          id: string;
-          points: number;
-          reason: string;
-          timestamp: string;
-        }>;
       };
     }>('/api/user/profile');
   },
@@ -149,6 +147,7 @@ export const userApi = {
     targetWeightKg?: number;
     activityLevel?: string;
     goalType?: string;
+    agentAvatar?: string;
   }) => {
     return apiRequest<{ message: string; user: any }>('/api/user/profile', {
       method: 'PUT',
@@ -220,43 +219,6 @@ export const exerciseApi = {
   },
 };
 
-// Scores API (for leaderboard)
-export const scoresApi = {
-  getScores: async (limit?: number, offset?: number) => {
-    const params = new URLSearchParams();
-    if (limit) params.append('limit', limit.toString());
-    if (offset) params.append('offset', offset.toString());
-    const query = params.toString() ? `?${params.toString()}` : '';
-    return apiRequest<{
-      scores: Array<{
-        id: string;
-        points: number;
-        reason: string;
-        timestamp: string;
-      }>;
-      pagination: {
-        total: number;
-        limit: number;
-        offset: number;
-        hasMore: boolean;
-      };
-    }>(`/api/scores${query}`);
-  },
-
-  getLeaderboard: async (limit?: number) => {
-    const params = new URLSearchParams();
-    if (limit) params.append('limit', limit.toString());
-    const query = params.toString() ? `?${params.toString()}` : '';
-    return apiRequest<{
-      leaderboard: Array<{
-        rank: number;
-        name: string;
-        points: number;
-        avatar: string;
-      }>;
-    }>(`/api/scores/leaderboard${query}`);
-  },
-};
 
 // Weight API
 export const weightApi = {

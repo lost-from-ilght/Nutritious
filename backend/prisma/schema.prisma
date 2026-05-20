@@ -19,8 +19,16 @@ model User {
   
   // User stats
   streakCount Int      @default(0) @map("streak_count")
-  totalScore  Int      @default(0) @map("total_score")
   lastLogin   DateTime? @map("last_login")
+  
+  // Valorant Rank & RR fields
+  totalRR        Int      @default(0) @map("total_rr")
+  currentRR      Int      @default(0) @map("current_rr")
+  rank           String   @default("UNRANKED")
+  tier           Int      @default(1)
+  agentAvatar    String?  @map("agent_avatar")
+  lastRRGainedAt DateTime? @map("last_rr_gained_at")
+  dailyRRGained  Int      @default(0) @map("daily_rr_gained")
   
   // Calorie goal (auto-calculated from TDEE or manually set)
   calorieGoal Int      @default(2000) @map("calorie_goal")
@@ -41,7 +49,6 @@ model User {
   exerciseLogs  ExerciseLog[]
   dailySummaries DailySummary[]
   streaks       Streak[]
-  scores        Score[]
   activityGraph ActivityGraph[]
   weightLogs    WeightLog[]
   
@@ -110,19 +117,6 @@ model Streak {
   
   @@unique([userId])
   @@map("streaks")
-}
-
-model Score {
-  id        String   @id @default(cuid())
-  userId    String   @map("user_id")
-  points    Int
-  reason    String
-  timestamp DateTime @default(now())
-  
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([userId, timestamp])
-  @@map("scores")
 }
 
 model ActivityGraph {

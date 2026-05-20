@@ -1,7 +1,6 @@
 import { prisma } from '../config/database';
 import { getToday, getDateString, isSameDay, getDaysAgo } from '../utils/date';
-import { getStreakMilestoneScore } from '../utils/scoring';
-import { awardScore } from './nutritionService';
+
 
 /**
  * Service for streak tracking and management
@@ -72,11 +71,7 @@ export const updateStreak = async (userId: string) => {
       },
     });
     
-    // Check for milestone scores
-    const milestone = getStreakMilestoneScore(newStreakCount);
-    if (milestone.reason) {
-      await awardScore(userId, milestone.reason);
-    }
+
   } else if (!isSameDay(lastActivityDate, today)) {
     // Streak broken, start new streak
     streak = await prisma.streak.update({
