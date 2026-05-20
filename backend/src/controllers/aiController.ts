@@ -18,8 +18,18 @@ export const processEntry = async (req: Request, res: Response) => {
   }
 
   try {
-    // 1. Process with AI
-    const result = await processAIEntry(text);
+    // 1. Check API Key
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { groqApiKey: true },
+    });
+
+    if (!user?.groqApiKey) {
+      throw new AppError('Groq API Key required. Please add your key in the profile settings.', 403);
+    }
+
+    // 2. Process with AI
+    const result = await processAIEntry(text, user.groqApiKey);
     const { type, data } = result;
 
     let savedEntry;

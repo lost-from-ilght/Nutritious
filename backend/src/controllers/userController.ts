@@ -23,6 +23,7 @@ export const getProfile = async (req: Request, res: Response) => {
       avatarUrl: true,
       createdAt: true,
       streakCount: true,
+      groqApiKey: true,
       totalRR: true,
       currentRR: true,
       rank: true,
@@ -56,6 +57,8 @@ export const getProfile = async (req: Request, res: Response) => {
   res.json({
     user: {
       ...user,
+      groqApiKey: undefined,
+      hasGroqKey: !!user.groqApiKey,
       streak: {
         current: streak.currentStreak,
         longest: streak.longestStreak,
@@ -75,7 +78,7 @@ export const getProfile = async (req: Request, res: Response) => {
 export const updateProfile = async (req: Request, res: Response) => {
   const userId = req.userId!;
   const {
-    name, avatarUrl, agentAvatar, calorieGoal,
+    name, avatarUrl, agentAvatar, groqApiKey, calorieGoal,
     age, gender, heightCm, currentWeightKg, targetWeightKg,
     activityLevel, goalType,
   } = req.body;
@@ -84,6 +87,7 @@ export const updateProfile = async (req: Request, res: Response) => {
   if (name             !== undefined) updateData.name             = name;
   if (avatarUrl        !== undefined) updateData.avatarUrl        = avatarUrl;
   if (agentAvatar      !== undefined) updateData.agentAvatar      = agentAvatar;
+  if (groqApiKey       !== undefined) updateData.groqApiKey       = groqApiKey;
   if (age              !== undefined) updateData.age              = Number(age);
   if (gender           !== undefined) updateData.gender           = gender;
   if (heightCm         !== undefined) updateData.heightCm         = Number(heightCm);

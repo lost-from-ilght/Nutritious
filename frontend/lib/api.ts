@@ -117,6 +117,7 @@ export const userApi = {
         rank: string;
         tier: number;
         agentAvatar?: string | null;
+        hasGroqKey?: boolean;
         calorieGoal: number;
         heightCm?: number | null;
         currentWeightKg?: number | null;
@@ -148,6 +149,7 @@ export const userApi = {
     activityLevel?: string;
     goalType?: string;
     agentAvatar?: string;
+    groqApiKey?: string;
   }) => {
     return apiRequest<{ message: string; user: any }>('/api/user/profile', {
       method: 'PUT',

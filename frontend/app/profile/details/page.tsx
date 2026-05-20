@@ -32,6 +32,7 @@ export default function PersonalDetailsPage() {
     targetWeightKg:   '',
     activityLevel:    'sedentary',
     goalType:         'lose',
+    groqApiKey:       '',
   });
 
   // Estimated calorie goal preview (client-side Mifflin-St Jeor)
@@ -67,6 +68,7 @@ export default function PersonalDetailsPage() {
         targetWeightKg:  u.targetWeightKg  ? String(u.targetWeightKg) : '',
         activityLevel:   u.activityLevel   ?? 'sedentary',
         goalType:        u.goalType        ?? 'lose',
+        groqApiKey:      '', // we don't fetch the actual key, just keep it empty on load
       });
     }).catch(console.error)
       .finally(() => setLoading(false));
@@ -88,6 +90,7 @@ export default function PersonalDetailsPage() {
         targetWeightKg:  form.targetWeightKg  ? Number(form.targetWeightKg) : undefined,
         activityLevel:   form.activityLevel   || undefined,
         goalType:        form.goalType        || undefined,
+        groqApiKey:      form.groqApiKey      || undefined,
       } as any);
       setSaved(true);
       setTimeout(() => { setSaved(false); router.push('/profile'); }, 1200);
@@ -202,6 +205,22 @@ export default function PersonalDetailsPage() {
                   <option key={val} value={val}>{label}</option>
                 ))}
               </select>
+            </div>
+          </section>
+
+          {/* API Settings */}
+          <section className="space-y-4">
+            <h2 className="text-xs font-semibold text-primary uppercase tracking-wider">API Settings</h2>
+            <div className="space-y-2">
+              <label className="text-sm text-gray-400">Groq API Key (Optional)</label>
+              <input
+                type="password"
+                value={form.groqApiKey}
+                onChange={set('groqApiKey')}
+                placeholder="gsk_..."
+                className="w-full bg-[#1A1A1A] p-4 text-white focus:outline-none focus:border-primary transition-colors"
+              />
+              <p className="text-[10px] text-gray-500">Provide your own Groq API key to use the AI Entry Logger. It will be stored securely.</p>
             </div>
           </section>
 

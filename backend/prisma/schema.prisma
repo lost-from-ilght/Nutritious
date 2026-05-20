@@ -21,6 +21,9 @@ model User {
   streakCount Int      @default(0) @map("streak_count")
   lastLogin   DateTime? @map("last_login")
   
+  // API Keys
+  groqApiKey  String?  @map("groq_api_key")
+  
   // Valorant Rank & RR fields
   totalRR        Int      @default(0) @map("total_rr")
   currentRR      Int      @default(0) @map("current_rr")

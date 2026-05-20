@@ -1,10 +1,4 @@
 import Groq from 'groq-sdk';
-import { env } from '../config/env';
-
-const groq = new Groq({
-  apiKey: env.GROQ_API_KEY.trim(),
-  timeout: 30000, // 30s timeout
-});
 
 export interface AIProcessedEntry {
   type: 'food' | 'exercise';
@@ -20,7 +14,12 @@ export interface AIProcessedEntry {
   };
 }
 
-export const processAIEntry = async (text: string): Promise<AIProcessedEntry> => {
+export const processAIEntry = async (text: string, groqApiKey: string): Promise<AIProcessedEntry> => {
+  const groq = new Groq({
+    apiKey: groqApiKey.trim(),
+    timeout: 30000,
+  });
+
   const prompt = `You are a nutrition and fitness expert. Analyze the following user entry and determine if it describes food consumption or exercise activity.
 User entry: "${text}"
 
