@@ -20,6 +20,7 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   secret: process.env.BETTER_AUTH_SECRET,
+  trustedOrigins: process.env.NEXT_PUBLIC_API_URL ? [process.env.NEXT_PUBLIC_API_URL] : [],
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),

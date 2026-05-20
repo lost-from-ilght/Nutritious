@@ -35,7 +35,8 @@ async function getBetterAuthSession(req: Request): Promise<{ id: string; email: 
 
     const data = await response.json() as { user?: { id: string; email: string; name: string; image?: string | null } };
     return data?.user ?? null;
-  } catch {
+  } catch (error) {
+    console.error('getBetterAuthSession error fetching from', BETTER_AUTH_URL, ':', error);
     return null;
   }
 }
