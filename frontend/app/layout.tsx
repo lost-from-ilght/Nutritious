@@ -20,6 +20,10 @@ const rajdhani = Rajdhani({
 export const metadata: Metadata = {
   title: "NutriTrack",
   description: "Level up your nutrition. Defeat your goals.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

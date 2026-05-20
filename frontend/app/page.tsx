@@ -101,13 +101,16 @@ function DashboardContent() {
         {/* App Bar */}
         <div className="flex justify-between items-center pt-3">
           <div>
-            <h1 className="font-game text-2xl leading-none tracking-wide"
-                style={{ color: 'var(--foreground)' }}>
-              NUTRI<span style={{ color: 'var(--primary)' }}>TRACK</span>
-            </h1>
+            <div className="flex items-center gap-2">
+              <img src="/logo.png" alt="NutriTrack Logo" className="w-7 h-7 object-contain" />
+              <h1 className="font-game text-2xl leading-none tracking-wide"
+                  style={{ color: 'var(--foreground)' }}>
+                NUTRI<span style={{ color: 'var(--primary)' }}>TRACK</span>
+              </h1>
+            </div>
             <p className="text-[9px] font-black uppercase tracking-[0.25em] mt-0.5"
                style={{ color: 'var(--muted)' }}>
-              {user?.name ? `Agent ${user.name.split(' ')[0]}` : 'Agent'}
+              {profileData?.name ? `Agent ${profileData.name.split(' ')[0]}` : user?.name ? `Agent ${user.name.split(' ')[0]}` : 'Agent'}
             </p>
           </div>
 
