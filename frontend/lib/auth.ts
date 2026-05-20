@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { PrismaClient } from "../src/generated/prisma";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { bearer } from "better-auth/plugins";
 
 // Prisma 7 requires a driver adapter — the connection URL is passed here,
 // not in the schema file or via constructor options.
@@ -21,6 +22,7 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   secret: process.env.BETTER_AUTH_SECRET,
   trustedOrigins: process.env.NEXT_PUBLIC_API_URL ? [process.env.NEXT_PUBLIC_API_URL] : [],
+  plugins: [bearer()],
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),

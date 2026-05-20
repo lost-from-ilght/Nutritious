@@ -18,26 +18,31 @@ const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
  */
 async function getBetterAuthSession(req: Request): Promise<{ id: string; email: string; name: string; image?: string | null } | null> {
   try {
-    // Forward all cookies so better-auth can read its session cookie
     const cookieHeader = req.headers.cookie || '';
-    let finalCookie = cookieHeader;
     const sessionToken = req.headers['x-session-token'];
-    
+
+    // Provide the Origin header so better-auth's CSRF protection allows the request
+    // Better Auth will trust the origin if it matches the configured trustedOrigins
+    const headers: Record<string, string> = {
+      cookie: cookieHeader,
+      // Provide origin matching the backend API URL (this must be in frontend's trustedOrigins)
+      Origin: process.env.CORS_ORIGIN || `https://${req.headers.host}`,
+    };
+
     if (sessionToken) {
-      // better-auth natively expects the token in the 'better-auth.session_token' cookie
-      // In production (HTTPS) it checks '__Secure-better-auth.session_token' as well,
-      // but passing both ensures it works in all environments.
-      const extraCookies = `better-auth.session_token=${sessionToken}; __Secure-better-auth.session_token=${sessionToken}`;
-      finalCookie = finalCookie ? `${finalCookie}; ${extraCookies}` : extraCookies;
+      // With the bearer plugin enabled on the frontend, this will cleanly authenticate
+      headers.authorization = `Bearer ${sessionToken}`;
     }
 
     const response = await fetch(`${BETTER_AUTH_URL}/api/auth/get-session`, {
-      headers: {
-        cookie: finalCookie,
-      },
+      headers,
     });
-
-    if (!response.ok) return null;
+    
+    if (!response.ok) {
+       const errText = await response.text();
+       console.error("Better Auth response not ok:", response.status, response.statusText, errText);
+       return null;
+    }
 
     const data = await response.json() as { user?: { id: string; email: string; name: string; image?: string | null } };
     return data?.user ?? null;
