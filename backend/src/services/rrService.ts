@@ -118,14 +118,44 @@ export const evaluateConsistency = async () => {
     const activeDays = new Set(recentLogs.map(l => l.timestamp.toISOString().split('T')[0])).size;
 
     if (activeDays < 5) {
-      // Demote to plastic
+      // Deduct 50 RR
+      let newRR = user.currentRR - 50;
+      let newTier = user.tier;
+      let newRank = user.rank;
+      const newTotalRR = Math.max(0, user.totalRR - 50);
+
+      while (newRR < 0) {
+        if (newRank === 'PLASTIC') {
+          newRR = 0;
+          break;
+        }
+        
+        if (newTier > 1) {
+          newTier -= 1;
+          newRR += 100;
+        } else {
+          const rankIndex = RANKS.indexOf(newRank);
+          if (rankIndex > 1) { // 0 is PLASTIC, 1 is IRON
+            newRank = RANKS[rankIndex - 1];
+            newTier = 3;
+            newRR += 100;
+          } else {
+            // Dropping below IRON -> PLASTIC
+            newRank = 'PLASTIC';
+            newTier = 1;
+            newRR = 0;
+            break;
+          }
+        }
+      }
+
       await prisma.user.update({
         where: { id: user.id },
         data: {
-          rank: 'PLASTIC',
-          tier: 1,
-          currentRR: 0,
-          totalRR: 0
+          rank: newRank,
+          tier: newTier,
+          currentRR: newRR,
+          totalRR: newTotalRR
         }
       });
       demotedCount++;

@@ -1,63 +1,50 @@
-# NutriTrack
+<div align="center">
+  
+![NutriTrack Logo](frontend/public/logo.png)
 
-A gamified nutrition and fitness tracker with Valorant/Mario-inspired UI.
+  <h1>NUTRI<span style="color: #ff4655;">TRACK</span></h1>
+  <p><strong>A Valorant-inspired, highly competitive fitness and diet tracker built to destroy inconsistency.</strong></p>
+  <p>🌐 <strong><a href="https://nutritious-frontend-rxs3.vercel.app">Play Now on Vercel</a></strong></p>
+</div>
 
-## Stack
-- **Frontend**: Next.js 16, Tailwind CSS 4, Better Auth, Prisma 7
-- **Backend**: Express, Prisma 7, Neon PostgreSQL, Groq AI
-- **Auth**: Better Auth with Google OAuth
+---
 
-## Local Development
+## 📖 The Story
+This app was built by **Tadiwos**. 
 
-```bash
-# Backend (port 3001)
-cd backend && npm install && npm run dev
+For almost 4 years, I played Valorant on and off, and honestly, I was more dedicated to the game than I was to my studies. Recently, I started working out but hit a massive wall with consistency. I was averaging maybe 10 gym days a month, and sometimes I'd skip an entire month altogether. 
 
-# Frontend (port 3000)
-cd frontend && npm install && npm run dev
-```
+Because I'm a highly competitive guy, I realized the only way to fix my inconsistency was to turn the gym into a ranked ladder. I built **NutriTrack** to make working out as engaging and competitive as grinding RR in Valorant. It's designed for friends to hold each other accountable, track diets, and climb the ranks together.
 
-## Deployment
+## 🚀 Getting Started
+To use the app to its absolute fullest:
+1. **Install the App**: For the best, most immersive experience, we highly insist you install the site as a Chrome app on your device. 
+   
+   ![Download as App](frontend/public/readme/downloadasapp.jpg)
 
-### Frontend → Vercel
-1. Import repo at vercel.com/new
-2. Set **Root Directory** to `frontend`
-3. Add environment variables (see below)
-4. Deploy
+2. **Sign In**: Create an account and immediately fill out your personal details in the profile section.
+3. **Choose Your Agent**: You have 29 Valorant Agents to choose from. Pick what looks cool, or pick your main! *(For the record, my mains are Yoru, Fade, and Viper).*
+4. **AI Logging**: You don't *have* to provide your own Groq API key. Non-Groq users automatically fall back to a shared Gemini token. **However**, if the Gemini token gets exhausted, you will need to enter your own personal Groq key in the settings to continue logging seamlessly.
 
-### Backend → Render
-1. New Web Service at render.com
-2. Connect this repo, set **Root Directory** to `backend`
-3. Build: `npm install && npm run build`
-4. Start: `node dist/server.js`
-5. Add environment variables (see below)
+## 🏆 The Ranked System & Scoring
+NutriTrack runs on a strict Rank Rating (RR) system, mimicking Valorant's progression:
+- **Gain RR**: ONLY workouts get you RR points.
+- **Progression**: Every 100 RR promotes you to the next Tier (subrank). Ascending through 3 Tiers promotes you to the next major Rank.
+- **Daily Cap**: You can earn a maximum of **+30 RR per day**.
+- **Strikes**: Getting a strike will cost you **-50 RR**. 
 
-## Environment Variables
+### 🗑️ The Strike Penalty
+Consistency is everything. If you don't log a workout for **more than 2 days** in a given week, you will be struck with a **-50 RR penalty**. 
+- If you have plenty of RR, you might just drop a few tiers (e.g., Iron 2 10RR drops to Iron 1 60RR).
+- If you are Iron 1 and fall below 0 RR, you will be demoted to the humiliating **PLASTIC** rank with 0 RR. *You do not want that.*
 
-### Frontend (Vercel)
-| Variable | Value |
-|---|---|
-| `DATABASE_URL` | Neon PostgreSQL connection string |
-| `BETTER_AUTH_SECRET` | 32+ char secret |
-| `BETTER_AUTH_URL` | Your Vercel URL (e.g. https://nutritrack.vercel.app) |
-| `NEXT_PUBLIC_APP_URL` | Same as BETTER_AUTH_URL |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
-| `NEXT_PUBLIC_API_URL` | Your Render backend URL |
+### 🥗 Diet Tracking
+Tracking your food, macros, and weight is completely **optional** for climbing the ranks. However, it is highly recommended if you actually want to see physical progress alongside your virtual rank!
 
-### Backend (Render)
-| Variable | Value |
-|---|---|
-| `DATABASE_URL` | Neon PostgreSQL connection string |
-| `BETTER_AUTH_SECRET` | Same secret as frontend |
-| `BETTER_AUTH_URL` | Your Vercel frontend URL |
-| `CORS_ORIGIN` | Your Vercel frontend URL |
-| `JWT_SECRET` | Any secret string |
-| `GROQ_API_KEY` | Groq API key |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
+## ⚠️ Rules of Engagement
+1. **Do not spam the AI.**
+2. **Do not DDOS the API.** (I *will* dox you).
+3. **Have fun and lift heavy.**
 
-## Google OAuth Setup
-Add these redirect URIs in Google Cloud Console:
-- `http://localhost:3000/api/auth/callback/google` (dev)
-- `https://your-vercel-url.vercel.app/api/auth/callback/google` (prod)
+## 📞 Support & Feedback
+If you face any bugs, issues, or have a sick idea for a new feature, hit me up on Telegram: **[@Tadi_dev](https://t.me/Tadi_dev)**.
