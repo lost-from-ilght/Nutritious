@@ -57,7 +57,15 @@ export default function LeaderboardPage() {
               const isTop3 = index < 3;
               const positionColors = ['text-[#FFD700]', 'text-[#C0C0C0]', 'text-[#CD7F32]'];
               const posColor = isTop3 ? positionColors[index] : 'text-gray-500';
-              const rankBadge = `/ranks/${u.rank}_${u.tier}.png`;
+              
+              const formatRankBadge = (rank: string, tier: number) => {
+                if (rank === 'PLASTIC') return `/ranks/PLASTIC_${tier}.png`;
+                if (rank === 'RADIANT') return `/ranks/Radiant_Rank.png`;
+                const titleCaseRank = rank.charAt(0).toUpperCase() + rank.slice(1).toLowerCase();
+                return `/ranks/${titleCaseRank}_${tier}_Rank.png`;
+              };
+              
+              const rankBadge = formatRankBadge(u.rank, u.tier);
               
               const avatar = u.agentAvatar || u.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.name}`;
 
