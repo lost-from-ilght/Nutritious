@@ -46,8 +46,9 @@ export default function PublicProfilePage() {
     try {
       const response = await userApi.getPublicProfile(id);
       setData(response);
-    } catch (err) {
-      setError('Agent profile not found.');
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Agent profile not found.');
     } finally {
       setLoading(false);
     }
