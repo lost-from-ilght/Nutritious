@@ -19,18 +19,13 @@ export const processEntry = async (req: Request, res: Response) => {
   }
 
   try {
-    // 1. Check API Key
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { groqApiKey: true },
     });
 
-    if (!user?.groqApiKey) {
-      throw new AppError('Groq API Key required. Please add your key in the profile settings.', 403);
-    }
-
-    // 2. Process with AI
-    const result = await processAIEntry(text, user.groqApiKey);
+    // 2. Process with AI (falls back to Gemini if groqApiKey is missing)
+    const result = await processAIEntry(text, user?.groqApiKey || null);
     const { type, data } = result;
 
     let savedEntry;
@@ -64,7 +59,7 @@ export const processEntry = async (req: Request, res: Response) => {
     }
 
     let rrResult = null;
-    if (type === 'exercise' && savedEntry.duration) {
+    if (type === 'exercise' && 'duration' in savedEntry && savedEntry.duration) {
       const rrToAward = Math.max(1, Math.ceil(savedEntry.duration / 2));
       rrResult = await awardRR(userId, rrToAward);
     }

@@ -272,3 +272,19 @@ export const aiApi = {
   },
 };
 
+// Leaderboard API
+export const leaderboardApi = {
+  getLeaderboard: async () => {
+    return apiRequest<{
+      leaderboard: Array<{
+        id: string;
+        name: string;
+        rank: string;
+        tier: number;
+        totalRR: number;
+        avatarUrl: string | null;
+        agentAvatar: string | null;
+      }>;
+    }>('/api/user/leaderboard');
+  },
+};

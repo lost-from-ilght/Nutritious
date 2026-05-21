@@ -206,3 +206,25 @@ export const deleteWeightLog = async (req: Request, res: Response) => {
 
   res.json({ message: 'Weight log deleted' });
 };
+
+/**
+ * GET /user/leaderboard
+ * Get top 50 users by total RR
+ */
+export const getLeaderboard = async (req: Request, res: Response) => {
+  const topUsers = await prisma.user.findMany({
+    orderBy: { totalRR: 'desc' },
+    take: 50,
+    select: {
+      id: true,
+      name: true,
+      rank: true,
+      tier: true,
+      totalRR: true,
+      avatarUrl: true,
+      agentAvatar: true,
+    },
+  });
+
+  res.json({ leaderboard: topUsers });
+};

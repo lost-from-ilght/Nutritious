@@ -93,18 +93,15 @@ export function AddEntryModal({ isOpen, onClose, onSuccess }: AddEntryModalProps
                         </div>
                     )}
 
-                    {hasGroqKey === false ? (
-                        <div className="bg-white/5 border border-[var(--primary)] clip-card p-6 text-center space-y-4 slide-up">
-                            <p className="text-gray-300 text-sm">
-                                To use the AI Entry Log, you need to provide your own Groq API Key. 
-                            </p>
-                            <Link href="/profile/details" onClick={handleClose} className="inline-block bg-[var(--primary)] text-black font-game uppercase tracking-widest px-6 py-3 clip-btn hover:bg-[var(--primary)]/90 transition-all">
-                                Add API Key
-                            </Link>
+                    {hasGroqKey !== null && (
+                        <div className="flex justify-end mb-2">
+                            <span className={`text-[10px] uppercase font-bold tracking-widest px-2 py-1 clip-card-sm ${hasGroqKey ? 'bg-[var(--primary)]/20 text-[var(--primary)] border border-[var(--primary)]/30' : 'bg-[var(--cyan)]/20 text-[var(--cyan)] border border-[var(--cyan)]/30'}`}>
+                                Using {hasGroqKey ? 'Groq (Personal)' : 'Gemini (Default)'}
+                            </span>
                         </div>
-                    ) : (
-                        <>
-                            <div className="relative group">
+                    )}
+
+                    <div className="relative group">
                                 <div className="absolute -inset-0.5 bg-gradient-to-r from-[var(--primary)]/20 to-[var(--cyan)]/20 blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
                                 <textarea
                                     value={input}
@@ -137,25 +134,23 @@ export function AddEntryModal({ isOpen, onClose, onSuccess }: AddEntryModalProps
                                 </div>
                             </div>
 
-                            <button
-                                type="submit"
-                                disabled={loading || !input.trim()}
-                                className="w-full h-14 bg-[var(--primary)] text-black font-game text-xl tracking-widest uppercase clip-btn hover:bg-[var(--primary)]/90 active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_20px_var(--primary-glow)]"
-                            >
-                                {loading ? (
-                                    <>
-                                        <LoadingSpinner size="sm" />
-                                        <span className="animate-pulse">Analyzing...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Send size={20} />
-                                        Log Entry
-                                    </>
-                                )}
-                            </button>
-                        </>
-                    )}
+                    <button
+                        type="submit"
+                        disabled={loading || !input.trim()}
+                        className="w-full h-14 bg-[var(--primary)] text-black font-game text-xl tracking-widest uppercase clip-btn hover:bg-[var(--primary)]/90 active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_20px_var(--primary-glow)]"
+                    >
+                        {loading ? (
+                            <>
+                                <LoadingSpinner size="sm" />
+                                <span className="animate-pulse">Analyzing...</span>
+                            </>
+                        ) : (
+                            <>
+                                <Send size={20} />
+                                Log Entry
+                            </>
+                        )}
+                    </button>
                 </form>
             </div>
 
