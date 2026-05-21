@@ -2,7 +2,7 @@ import { prisma } from '../config/database';
 import { getToday, getStartOfDay, getEndOfDay } from '../utils/date';
 
 const RANKS = [
-  'IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'ASCENDANT', 'IMMORTAL', 'RADIANT'
+  'PLASTIC', 'IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'ASCENDANT', 'IMMORTAL', 'RADIANT'
 ];
 
 export const awardRR = async (userId: string, amount: number) => {
@@ -34,12 +34,13 @@ export const awardRR = async (userId: string, amount: number) => {
   let newRR = user.currentRR + rrToGive;
   let newTier = user.tier;
   let newRank = user.rank;
-  if (newRank === 'UNRANKED') {
+  let rankUp = false;
+  
+  if (newRank === 'UNRANKED' || newRank === 'PLASTIC') {
     newRank = 'IRON';
     newTier = 1;
+    rankUp = true;
   }
-
-  let rankUp = false;
   
   // Handle rank ups
   while (newRR >= 100 && newRank !== 'RADIANT') {
@@ -83,4 +84,53 @@ export const awardRR = async (userId: string, amount: number) => {
     newTier,
     currentRR: newRR
   };
+};
+
+/**
+ * Evaluate user consistency.
+ * Users with less than 5 days of exercise in the last 7 days are demoted to PLASTIC.
+ */
+export const evaluateConsistency = async () => {
+  console.log('Evaluating user consistency for rank demotion...');
+  
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
+
+  const users = await prisma.user.findMany({
+    select: { id: true, rank: true }
+  });
+
+  let demotedCount = 0;
+
+  for (const user of users) {
+    if (user.rank === 'PLASTIC') continue; // Already at the bottom
+
+    const recentLogs = await prisma.exerciseLog.findMany({
+      where: {
+        userId: user.id,
+        timestamp: { gte: sevenDaysAgo }
+      },
+      select: { timestamp: true }
+    });
+
+    // Count distinct days
+    const activeDays = new Set(recentLogs.map(l => l.timestamp.toISOString().split('T')[0])).size;
+
+    if (activeDays < 5) {
+      // Demote to plastic
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          rank: 'PLASTIC',
+          tier: 1,
+          currentRR: 0,
+          totalRR: 0
+        }
+      });
+      demotedCount++;
+    }
+  }
+
+  console.log(`Consistency evaluation complete. Demoted ${demotedCount} users to PLASTIC.`);
 };

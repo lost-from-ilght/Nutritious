@@ -25,9 +25,9 @@ model User {
   groqApiKey  String?  @map("groq_api_key")
   
   // Valorant Rank & RR fields
-  totalRR        Int      @default(0) @map("total_rr")
-  currentRR      Int      @default(0) @map("current_rr")
-  rank           String   @default("UNRANKED")
+  totalRR        Int      @default(10) @map("total_rr")
+  currentRR      Int      @default(10) @map("current_rr")
+  rank           String   @default("IRON")
   tier           Int      @default(1)
   agentAvatar    String?  @map("agent_avatar")
   lastRRGainedAt DateTime? @map("last_rr_gained_at")

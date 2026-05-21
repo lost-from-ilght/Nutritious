@@ -93,6 +93,10 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
             passwordHash: '', // not used with OAuth
             avatarUrl: sessionUser.image ?? null,
             lastLogin: new Date(),
+            rank: 'IRON',
+            tier: 1,
+            currentRR: 10,
+            totalRR: 10,
           },
           select: { id: true },
         });

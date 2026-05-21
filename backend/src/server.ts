@@ -1,8 +1,10 @@
 import 'dotenv/config'; // must be first — loads .env before any other module
 import { createApp } from './app';
 import { env } from './config/env';
+import { startCronJobs } from './services/cronService';
 
 const app = createApp();
+startCronJobs();
 
 const server = app.listen(env.PORT, () => {
   console.log(`🚀 Server running on port ${env.PORT}`);
