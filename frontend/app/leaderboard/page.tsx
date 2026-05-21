@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { MobileContainer } from '@/components/layout/MobileContainer';
 import { BottomNav } from '@/components/navigation/BottomNav';
 import { Trophy } from 'lucide-react';
@@ -8,6 +9,7 @@ import { leaderboardApi } from '@/lib/api';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 export default function LeaderboardPage() {
+  const router = useRouter();
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +74,8 @@ export default function LeaderboardPage() {
               return (
                 <div 
                   key={u.id}
-                  className={`flex items-center gap-4 p-4 clip-card border ${isTop3 ? 'border-[var(--primary)]/30 bg-[var(--primary)]/5' : 'border-white/5 bg-[var(--bg-card)]'}`}
+                  onClick={() => router.push(`/profile/${u.id}`)}
+                  className={`flex items-center gap-4 p-4 clip-card border cursor-pointer hover:bg-white/5 transition-colors ${isTop3 ? 'border-[var(--primary)]/30 bg-[var(--primary)]/5' : 'border-white/5 bg-[var(--bg-card)]'}`}
                 >
                   <div className={`w-8 font-game text-3xl font-bold ${posColor} text-center`}>
                     #{index + 1}

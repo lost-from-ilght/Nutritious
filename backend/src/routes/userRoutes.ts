@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getProfile, updateProfile, getWeightHistory, logWeight, deleteWeightLog, getLeaderboard } from '../controllers/userController';
+import { getProfile, updateProfile, getWeightHistory, logWeight, deleteWeightLog, getLeaderboard, getPublicProfile } from '../controllers/userController';
 import { authenticate } from '../middleware/auth';
 import { asyncHandler } from '../middleware/errorHandler';
 
@@ -13,5 +13,6 @@ router.get('/weight',         asyncHandler(getWeightHistory));
 router.post('/weight',        asyncHandler(logWeight));
 router.delete('/weight/:date', asyncHandler(deleteWeightLog));
 router.get('/leaderboard',    asyncHandler(getLeaderboard));
+router.get('/public/:id',     asyncHandler(getPublicProfile));
 
 export default router;

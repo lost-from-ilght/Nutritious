@@ -156,6 +156,32 @@ export const userApi = {
       body: JSON.stringify(data),
     });
   },
+
+  getPublicProfile: async (id: string) => {
+    return apiRequest<{
+      user: {
+        id: string;
+        name: string;
+        rank: string;
+        tier: number;
+        totalRR: number;
+        agentAvatar: string | null;
+        avatarUrl: string | null;
+        calorieGoal: number;
+        streak: number;
+      };
+      weeklyProgress: {
+        dailyBreakdown: Array<{
+          date: string;
+          calories: number;
+          goal: number;
+          protein: number;
+          inDeficit: boolean;
+        }>;
+        calorieGoal: number;
+      };
+    }>(`/api/user/public/${id}`);
+  },
 };
 
 // Food API

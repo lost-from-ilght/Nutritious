@@ -98,7 +98,7 @@ export const evaluateConsistency = async () => {
   sevenDaysAgo.setHours(0, 0, 0, 0);
 
   const users = await prisma.user.findMany({
-    select: { id: true, rank: true }
+    select: { id: true, rank: true, currentRR: true, tier: true, totalRR: true }
   });
 
   let demotedCount = 0;

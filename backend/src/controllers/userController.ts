@@ -228,3 +228,61 @@ export const getLeaderboard = async (req: Request, res: Response) => {
 
   res.json({ leaderboard: topUsers });
 };
+
+/**
+ * GET /user/public/:id
+ * Get public profile and heat map for a specific user.
+ */
+export const getPublicProfile = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      rank: true,
+      tier: true,
+      totalRR: true,
+      agentAvatar: true,
+      avatarUrl: true,
+      calorieGoal: true,
+    },
+  });
+
+  if (!user) throw new AppError('User not found', 404);
+
+  const streak = await getUserStreak(id);
+
+  // Heat map: last 7 days of data
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - 6);
+  weekStart.setHours(0, 0, 0, 0);
+
+  const thisWeekSummaries = await prisma.dailySummary.findMany({
+    where: { userId: id, date: { gte: weekStart } },
+    orderBy: { date: 'asc' },
+  });
+
+  const calorieGoal = user.calorieGoal ?? 2000;
+
+  // Format into daily breakdown
+  const dailyBreakdown = thisWeekSummaries.map((s) => ({
+    date: s.date.toISOString(), // We use standard ISO string here
+    calories: s.netCalories,
+    goal: calorieGoal,
+    protein: Math.round(s.protein),
+    inDeficit: s.netCalories > 0 && s.netCalories <= calorieGoal,
+  }));
+
+  res.json({
+    user: {
+      ...user,
+      streak: streak.currentStreak,
+    },
+    weeklyProgress: {
+      dailyBreakdown,
+      calorieGoal,
+    },
+  });
+};
