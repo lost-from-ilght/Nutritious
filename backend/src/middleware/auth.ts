@@ -18,19 +18,35 @@ const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
  */
 async function getBetterAuthSession(req: Request): Promise<{ id: string; email: string; name: string; image?: string | null } | null> {
   try {
-    const cookieHeader = req.headers.cookie || '';
-    const sessionToken = req.headers['x-session-token'];
+    const sessionToken = req.headers['x-session-token'] as string;
 
+    if (sessionToken) {
+      // 1. Fast local DB lookup (saves 100-300ms network latency)
+      const authSession = await prisma.authSession.findFirst({
+        where: { token: sessionToken },
+        include: { user: true },
+      });
+
+      if (authSession && authSession.expiresAt > new Date()) {
+        return {
+          id: authSession.user.id,
+          email: authSession.user.email,
+          name: authSession.user.name,
+          image: authSession.user.image,
+        };
+      }
+    }
+
+    // 2. Fallback to HTTP request
+    const cookieHeader = req.headers.cookie || '';
+    
     // Provide the Origin header so better-auth's CSRF protection allows the request
-    // Better Auth will trust the origin if it matches the configured trustedOrigins
     const headers: Record<string, string> = {
       cookie: cookieHeader,
-      // Provide origin matching the backend API URL (this must be in frontend's trustedOrigins)
       Origin: process.env.CORS_ORIGIN || `https://${req.headers.host}`,
     };
 
     if (sessionToken) {
-      // With the bearer plugin enabled on the frontend, this will cleanly authenticate
       headers.authorization = `Bearer ${sessionToken}`;
     }
 
@@ -39,15 +55,13 @@ async function getBetterAuthSession(req: Request): Promise<{ id: string; email: 
     });
     
     if (!response.ok) {
-       const errText = await response.text();
-       console.error("Better Auth response not ok:", response.status, response.statusText, errText);
        return null;
     }
 
     const data = await response.json() as { user?: { id: string; email: string; name: string; image?: string | null } };
     return data?.user ?? null;
   } catch (error) {
-    console.error('getBetterAuthSession error fetching from', BETTER_AUTH_URL, ':', error);
+    console.error('getBetterAuthSession error:', error);
     return null;
   }
 }
