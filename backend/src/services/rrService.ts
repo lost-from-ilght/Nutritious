@@ -164,3 +164,87 @@ export const evaluateConsistency = async () => {
 
   console.log(`Consistency evaluation complete. Demoted ${demotedCount} users to PLASTIC.`);
 };
+
+/**
+ * Lazy evaluation of user consistency.
+ * Called when a user accesses the app to ensure penalties are applied even if the server sleeps through midnight.
+ */
+export const evaluateUserConsistency = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, rank: true, currentRR: true, tier: true, totalRR: true, lastConsistencyCheck: true }
+  });
+
+  if (!user) return;
+
+  const todayStr = getToday().toISOString().split('T')[0];
+  const lastCheckStr = user.lastConsistencyCheck ? user.lastConsistencyCheck.toISOString().split('T')[0] : null;
+  
+  // If we already checked them today, skip
+  if (lastCheckStr === todayStr) return;
+
+  // We are evaluating them now
+  await prisma.user.update({
+    where: { id: userId },
+    data: { lastConsistencyCheck: getStartOfDay(new Date()) }
+  });
+
+  if (user.rank === 'PLASTIC') return;
+
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
+
+  const recentLogs = await prisma.exerciseLog.findMany({
+    where: {
+      userId: user.id,
+      timestamp: { gte: sevenDaysAgo }
+    },
+    select: { timestamp: true }
+  });
+
+  const activeDays = new Set(recentLogs.map(l => l.timestamp.toISOString().split('T')[0])).size;
+
+  if (activeDays < 5) {
+    let newRR = user.currentRR - 50;
+    let newTier = user.tier;
+    let newRank = user.rank;
+    const newTotalRR = Math.max(0, user.totalRR - 50);
+
+    while (newRR < 0) {
+      if (newRank === 'PLASTIC') {
+        newRR = 0;
+        break;
+      }
+      
+      if (newTier > 1) {
+        newTier -= 1;
+        newRR += 100;
+      } else {
+        const rankIndex = RANKS.indexOf(newRank);
+        if (rankIndex > 1) { 
+          newRank = RANKS[rankIndex - 1];
+          newTier = 3;
+          newRR += 100;
+        } else {
+          newRank = 'PLASTIC';
+          newTier = 1;
+          newRR = 0;
+          break;
+        }
+      }
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        rank: newRank,
+        tier: newTier,
+        currentRR: newRR,
+        totalRR: newTotalRR
+      }
+    });
+    
+    console.log(`Lazy evaluation demoted user ${user.id} to ${newRank} ${newTier} ${newRR}RR.`);
+  }
+};

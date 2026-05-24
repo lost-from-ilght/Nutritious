@@ -96,6 +96,7 @@ export const dashboardApi = {
         calories: number;
         type: 'food' | 'exercise';
         time: string;
+        timestamp: string;
         details?: string;
       }>;
     }>('/api/dashboard');

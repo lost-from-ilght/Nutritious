@@ -20,6 +20,7 @@ model User {
   // User stats
   streakCount Int      @default(0) @map("streak_count")
   lastLogin   DateTime? @map("last_login")
+  lastConsistencyCheck DateTime? @map("last_consistency_check")
   
   // API Keys
   groqApiKey  String?  @map("groq_api_key")

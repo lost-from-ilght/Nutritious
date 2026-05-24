@@ -8,11 +8,16 @@ import {
 } from '../utils/calculations';
 import { getToday } from '../utils/date';
 
+import { evaluateUserConsistency } from '../services/rrService';
+
 /**
  * GET /user/profile
  */
 export const getProfile = async (req: Request, res: Response) => {
   const userId = req.userId!;
+
+  // Lazy evaluation of rank demotion
+  await evaluateUserConsistency(userId);
 
   const user = await prisma.user.findUnique({
     where: { id: userId },

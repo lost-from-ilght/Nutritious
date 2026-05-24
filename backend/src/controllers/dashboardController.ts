@@ -3,12 +3,18 @@ import { prisma } from '../config/database';
 import { getToday, getDateString, getDaysAgo } from '../utils/date';
 import { calculateRecommendedMacros } from '../utils/calculations';
 
+import { evaluateUserConsistency } from '../services/rrService';
+
 /**
  * GET /dashboard
  * Get dashboard data: calorie goal card, macros, activity graph, recent activity
  */
 export const getDashboard = async (req: Request, res: Response) => {
   const userId = req.userId!;
+  
+  // Lazy evaluation of rank demotion
+  await evaluateUserConsistency(userId);
+
   const today = getToday();
 
   // Get user
@@ -65,13 +71,13 @@ export const getDashboard = async (req: Request, res: Response) => {
   const recentFoodLogs = await prisma.foodLog.findMany({
     where: { userId },
     orderBy: { timestamp: 'desc' },
-    take: 10,
+    take: 50,
   });
 
   const recentExerciseLogs = await prisma.exerciseLog.findMany({
     where: { userId },
     orderBy: { timestamp: 'desc' },
-    take: 10,
+    take: 50,
   });
 
   // Combine and sort recent activity
@@ -106,8 +112,7 @@ export const getDashboard = async (req: Request, res: Response) => {
     })),
   ]
     .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-    .slice(0, 20)
-    .map(({ timestamp, ...rest }) => rest); // Remove timestamp from final output
+    .slice(0, 50);
 
   res.json({
     calorieGoal: {

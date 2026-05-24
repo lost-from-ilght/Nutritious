@@ -23,6 +23,9 @@ Return a JSON object with the following structure:
 If it's food: { "type": "food", "data": { "name": "Food Name", "calories": 250, "protein": 15, "carbs": 30, "fats": 8, "details": "Description of the meal and estimated portion size" } }
 If it's exercise: { "type": "exercise", "data": { "name": "exercise", "caloriesBurned": 300, "duration": 45, "details": "Description of the exercise intensity" } }
 
+CRITICAL RULE FOR EXERCISE CALORIES:
+Weightlifting, strength training, and isolated exercises (e.g., bench press, squats, bicep curls, deadlifts) burn VERY FEW calories per set. Typically, a single exercise block (e.g. 3 sets of inclined bench press) burns ONLY 20-35 calories total. Strictly limit weightlifting estimates to this range unless it was a full 1-hour intense circuit. Cardio (running, cycling) burns more. Do not overestimate weightlifting calories!
+
 Ensure all numerical values are numbers, not strings. Provide your best scientific estimate for nutrition if not specified.
 Return ONLY the JSON object, no other text.`;
 

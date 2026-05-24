@@ -7,7 +7,7 @@ import { foodApi, exerciseApi } from '@/lib/api';
 
 interface ActivityItem {
   id: string; title: string; calories: number;
-  type: 'food' | 'exercise'; time: string; details?: string;
+  type: 'food' | 'exercise'; time: string; details?: string; timestamp: string | Date;
 }
 
 interface RecentActivityProps {
@@ -18,6 +18,37 @@ interface RecentActivityProps {
 export function RecentActivity({ activities, onRefresh }: RecentActivityProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'today' | 'week' | 'month' | 'all'>('today');
+
+  const filterActivities = () => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    // get start of week (sunday)
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay());
+    
+    // get start of month
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    return activities.filter(activity => {
+      if (activeTab === 'all') return true;
+      const activityDate = new Date(activity.timestamp);
+      
+      if (activeTab === 'today') {
+        return activityDate >= today;
+      }
+      if (activeTab === 'week') {
+        return activityDate >= weekStart;
+      }
+      if (activeTab === 'month') {
+        return activityDate >= monthStart;
+      }
+      return true;
+    });
+  };
+
+  const filteredActivities = filterActivities();
 
   const handleDelete = async (item: ActivityItem) => {
     if (!confirm('Delete this entry?')) return;
@@ -32,19 +63,38 @@ export function RecentActivity({ activities, onRefresh }: RecentActivityProps) {
 
   return (
     <div className="space-y-3 pb-24">
-      <div className="flex items-center gap-2">
-        <span className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: 'var(--muted)' }}>
-          Activity Feed
-        </span>
-        <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
-        <span className="text-[10px]" style={{ color: 'var(--muted)' }}>{activities.length} entries</span>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: 'var(--muted)' }}>
+            Activity Feed
+          </span>
+          <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
+          <span className="text-[10px]" style={{ color: 'var(--muted)' }}>{filteredActivities.length} entries</span>
+        </div>
+        
+        <div className="flex gap-2">
+          {(['today', 'week', 'month', 'all'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                "text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition-colors",
+                activeTab === tab 
+                  ? "bg-[var(--primary)] text-white" 
+                  : "bg-[var(--bg-card)] text-[var(--muted)] hover:text-[var(--foreground)]"
+              )}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {activities.length === 0 ? (
+      {filteredActivities.length === 0 ? (
         <div className="text-center py-12 space-y-2">
           <div className="text-4xl">🎮</div>
           <p className="font-bold uppercase tracking-wider text-sm" style={{ color: 'var(--muted)' }}>
-            No entries yet
+            No entries for {activeTab}
           </p>
           <p className="text-xs" style={{ color: 'var(--muted)' }}>
             Hit the + button to log your first mission
@@ -52,7 +102,7 @@ export function RecentActivity({ activities, onRefresh }: RecentActivityProps) {
         </div>
       ) : (
         <div className="space-y-2">
-          {activities.map((item) => {
+          {filteredActivities.map((item) => {
             const isExpanded = expandedId === item.id;
             const isFood = item.type === 'food';
 
@@ -87,6 +137,11 @@ export function RecentActivity({ activities, onRefresh }: RecentActivityProps) {
                           {item.title}
                         </div>
                         <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
+                          {activeTab !== 'today' && (
+                            <span className="mr-1 opacity-70">
+                              {new Date(item.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                            </span>
+                          )}
                           {item.time}
                         </div>
                       </div>
