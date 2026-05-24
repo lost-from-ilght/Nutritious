@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Trophy, ChevronUp } from 'lucide-react';
 
 interface RankUpOverlayProps {
@@ -8,14 +8,14 @@ interface RankUpOverlayProps {
 }
 
 export function RankUpOverlay({ rank, tier, onClose }: RankUpOverlayProps) {
-  // Auto-close after 5 seconds
-  useEffect(() => {
-    const timer = setTimeout(onClose, 5000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
+  const getBadgeUrl = () => {
+    if (rank === 'PLASTIC') return `/ranks/PLASTIC_${tier}.png`;
+    if (rank === 'RADIANT') return `/ranks/Radiant_Rank.png`;
+    const titleCaseRank = rank.charAt(0).toUpperCase() + rank.slice(1).toLowerCase();
+    return `/ranks/${titleCaseRank}_${tier}_Rank.png`;
+  };
 
-  const formattedRank = rank.charAt(0) + rank.slice(1).toLowerCase();
-  const badgeUrl = `/ranks/${formattedRank}_${tier}.png`;
+  const badgeUrl = getBadgeUrl();
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
