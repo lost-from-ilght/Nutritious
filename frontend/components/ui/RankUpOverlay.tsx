@@ -14,7 +14,8 @@ export function RankUpOverlay({ rank, tier, onClose }: RankUpOverlayProps) {
     return () => clearTimeout(timer);
   }, [onClose]);
 
-  const badgeUrl = `/ranks/${rank}_${tier}.png`;
+  const formattedRank = rank.charAt(0) + rank.slice(1).toLowerCase();
+  const badgeUrl = `/ranks/${formattedRank}_${tier}.png`;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md animate-in fade-in duration-300">

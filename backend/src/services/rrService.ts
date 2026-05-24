@@ -51,6 +51,7 @@ export const awardRR = async (userId: string, amount: number) => {
     
     if (newTier < 3) {
       newTier += 1;
+      rankUp = true; // Minor rank up (tier change)
     } else {
       const rankIndex = RANKS.indexOf(newRank);
       if (rankIndex < RANKS.length - 1) {

@@ -50,9 +50,9 @@ function DashboardContent() {
 
   useEffect(() => { fetchAll(); }, []);
 
-  const fetchAll = async () => {
+  const fetchAll = async (showSpinner = true) => {
     try {
-      setLoading(true);
+      if (showSpinner) setLoading(true);
       const [dashboard, weights, profile] = await Promise.all([
         dashboardApi.getDashboard(),
         weightApi.getHistory(),
@@ -178,7 +178,7 @@ function DashboardContent() {
       </div>
 
       <BottomNav onAddClick={() => setIsAddModalOpen(true)} />
-      <AddEntryModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onSuccess={fetchAll} />
+      <AddEntryModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onSuccess={() => fetchAll(false)} />
     </MobileContainer>
   );
 }
