@@ -22,28 +22,31 @@ export function RecentActivity({ activities, onRefresh }: RecentActivityProps) {
 
   const filterActivities = () => {
     const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
-    // get start of week (sunday)
-    const weekStart = new Date(today);
-    weekStart.setDate(today.getDate() - today.getDay());
-    
-    // get start of month
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
     return activities.filter(activity => {
       if (activeTab === 'all') return true;
+      
       const activityDate = new Date(activity.timestamp);
       
+      const isSameDay = activityDate.getDate() === now.getDate() &&
+                        activityDate.getMonth() === now.getMonth() &&
+                        activityDate.getFullYear() === now.getFullYear();
+
       if (activeTab === 'today') {
-        return activityDate >= today;
+        return isSameDay;
       }
+      
+      // Calculate days difference for rolling windows
+      const timeDiff = now.getTime() - activityDate.getTime();
+      const daysDiff = timeDiff / (1000 * 3600 * 24);
+
       if (activeTab === 'week') {
-        return activityDate >= weekStart;
+        return daysDiff <= 7;
       }
       if (activeTab === 'month') {
-        return activityDate >= monthStart;
+        return daysDiff <= 30;
       }
+      
       return true;
     });
   };
